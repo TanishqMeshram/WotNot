@@ -1,87 +1,110 @@
 <template>
-  <div class="content-section">
+  <div class="content-section p-4">
+    <div class="flex flex-col md:flex-row justify-between mb-4">
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold">Manage Templates</h2>
+        <p class="text-sm md:text-base">Your content for scheduled broadcasts goes here.</p>
+      </div>
 
-    <h2>Manage Templates</h2>
-    <p>Your content for scheduled broadcasts goes here.</p>
-
-    <div class="CreateTemplateContainer">
-      <p>Create New Template</p>
-      <button @click="showSelectionPopup = true">Create Template</button>
-    </div>
-
-    <div class="templateList_container">
-      <table class="templateList-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Language</th>
-            <th>Status</th>
-            <th>Category</th>
-            <th>Sub Category</th>
-            <th>ID</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="template in templates" :key="template.id">
-            <td>{{ template.name }}</td>
-            <td>{{ template.language }}</td>
-            <td>{{ template.status }}</td>
-            <td>{{ template.category }}</td>
-            <td>{{ template.sub_category }}</td>
-            <td>{{ template.id }}</td>
-            <td><button id="TemplatedeleteBtn" @click="deleteTemplate(template.id)">Delete</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Popup for Template Type Selection -->
-    <div v-if="showSelectionPopup" class="popup-overlay" @click.self="closeSelectionPopup">
-      <div class="popup-content">
-        <h2>Select Template Type</h2>
-        <div class="template-type-options">
-          <button @click="selectType('MARKETING')">Marketing</button>
-          <button @click="selectType('UTILITY')">Utility</button>
-        </div>
-        <button @click="closeSelectionPopup" class="discard-button">Close</button>
+      <div class="bg-[#075e54] rounded-md shadow-lg mt-2 md:mt-0">
+        <button @click="showSelectionPopup = true" class="text-[#f5f6fa] px-4 py-2 md:px-4 md:py-4 text-sm md:text-base w-full md:w-auto">Create New Template</button>
       </div>
     </div>
 
-    <!-- Create Template Popup -->
-    <div v-if="showPopup" class="popup-overlay" @click.self="closePopup">
-      <div class="popup-content">
-        <h2>Create {{ selectedType }} Template</h2>
+    <div class="bg-[#f5f6fa] rounded-md p-4 mb-4 shadow-lg">
+      <div class="overflow-x-auto max-h-[60vh] custom-scrollbar">
+        <table class="w-full rounded-md border-collapse">
+          <thead>
+            <tr class="bg-[#dddddd] text-center">
+              <th class="p-2 text-center md:p-4 border-[#ddd] sticky top-0 bg-[#dddddd]">Name</th>
+              <th class="p-2 text-center md:p-4 border-[#ddd] sticky top-0 bg-[#dddddd]">Language</th>
+              <th class="p-2 text-center md:p-4 border-[#ddd] sticky top-0 bg-[#dddddd]">Status</th>
+              <th class="p-2 text-center md:p-4 border-[#ddd] sticky top-0 bg-[#dddddd]">Category</th>
+              <th class="p-2 text-center md:p-4 border-[#ddd] sticky top-0 bg-[#dddddd]">Sub Category</th>
+              <th class="p-2 text-center md:p-4 border-[#ddd] sticky top-0 bg-[#dddddd]">ID</th>
+              <th class="p-2 text-center md:p-4 border-[#ddd] sticky top-0 bg-[#dddddd]">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <tr v-for="template in templates" :key="template.id">
+              <td class=" border-[#ddd] p-2 md:p-4 text-left">{{ template.name }}</td>
+              <td class=" border-[#ddd] p-2 md:p-4 text-center">{{ template.language }}</td>
+              <td class=" border-[#ddd] p-2 md:p-4 text-center">{{ template.status }}</td>
+              <td class=" border-[#ddd] p-2 md:p-4 text-center">{{ template.category }}</td>
+              <td class=" border-[#ddd] p-2 md:p-4 text-center">{{ template.sub_category }}</td>
+              <td class=" border-[#ddd] p-2 md:p-4 text-center">{{ template.id }}</td>
+              <td class=" border-[#ddd] p-2 md:p-4 text-center">
+                <button @click="deleteTemplate(template.id)" class="text-red-500 hover:text-red-700">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 p-0 text-red-500"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 6h18M4 6h16l-1 14H5L4 6z"></path>
+                    <path d="M10 11v6m4-6v6"></path>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div v-if="showSelectionPopup" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click.self="closeSelectionPopup">
+      <div class="bg-white p-4 rounded-md shadow-lg max-w-[90vw] md:max-w-md w-full">
+        <h2 class="text-lg font-bold mb-4">Select Template Type</h2>
+        <div class="flex flex-col md:flex-row justify-between gap-4">
+          <button @click="selectType('MARKETING')" class="flex-1 p-2 bg-[#075e54] text-white rounded-md cursor-pointer hover:bg-[#063a41]">Marketing</button>
+          <button @click="selectType('UTILITY')" class="flex-1 p-2 bg-[#075e54] text-white rounded-md cursor-pointer hover:bg-[#063a41]">Utility</button>
+        </div>
+        <button @click="closeSelectionPopup" class="mt-4 bg-[#ff4d4d] text-white border-none p-2 rounded-md cursor-pointer">Close</button>
+      </div>
+    </div>
+
+    <div v-if="showPopup" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click.self="closePopup">
+      <div class="bg-white p-4 rounded-md shadow-lg max-w-[90vw] md:max-w-md w-full">
+        <h2 class="text-lg font-bold mb-4">Create {{ selectedType }} Template</h2>
         <form @submit.prevent="submitTemplate">
-          <input v-model="template.name" placeholder="Template Name" required />
-          <textarea v-model="bodyComponent.text" placeholder="Body Text" required></textarea>
+          <input 
+            v-model="template.name" 
+            placeholder="Template Name" 
+            @blur="validateTemplateName" 
+            :class="{ 'border-red-500': nameError }" 
+            required 
+            class="border border-[#ddd] p-2 rounded-md w-full mb-2"
+          />
+          <span v-if="nameError" class="text-red-500 text-sm mb-2">{{ nameError }}</span>
+          <textarea v-model="bodyComponent.text" placeholder="Body Text" required class="border border-[#ddd] p-2 rounded-md w-full mb-2"></textarea>
 
-          <!-- Conditionally display header component -->
-          <input v-model="headerComponent.text" placeholder="Header Text (optional)" />
+          <input v-model="headerComponent.text" placeholder="Header Text (optional)" class="border border-[#ddd] p-2 rounded-md w-full mb-2" />
 
-          <!-- Conditionally display footer component -->
-          <input v-model="footerComponent.text" placeholder="Footer Text (optional)" />
+          <input v-model="footerComponent.text" placeholder="Footer Text (optional)" class="border border-[#ddd] p-2 rounded-md w-full mb-2" />
 
-          <!-- Conditionally display button component -->
-          <input v-if="selectedSubCategory !== 'ORDER_STATUS'" v-model="button.text"
-            placeholder="Button Text (optional)" />
-          <input v-if="selectedSubCategory !== 'ORDER_STATUS'" v-model="button.url"
-            placeholder="Button URL (optional)" />
+          <input v-if="selectedSubCategory !== 'ORDER_STATUS'" v-model="button.text" placeholder="Button Text (optional)" class="border border-[#ddd] p-2 rounded-md w-full mb-2" />
+          <input v-if="selectedSubCategory !== 'ORDER_STATUS'" v-model="button.url" placeholder="Button URL (optional)" class="border border-[#ddd] p-2 rounded-md w-full mb-2" />
 
-          <!-- New Dropdown for Sub-Category Selection -->
-          <select v-model="selectedSubCategory" required>
+          <select v-model="selectedSubCategory" required class="border border-[#ddd] p-2 rounded-md w-full mb-4">
             <option value="" disabled>Select Sub-Category</option>
             <option value="ORDER_DETAILS">Order Details</option>
-            <!-- <option value="ORDER_STATUS">Order Status</option> -->
           </select>
 
-          <button type="submit" class="submit-button">Submit</button>
+          <button type="submit" class="bg-[#5cb85c] text-white border-none p-2 rounded-md cursor-pointer mb-4 hover:bg-[#4cae4c]">Submit</button>
         </form>
-        <button @click="closePopup" class="discard-button">Close</button>
+        <button @click="closePopup" class="bg-[#ff4d4d] text-white border-none p-2 rounded-md cursor-pointer">Close</button>
       </div>
     </div>
   </div>
 </template>
+
+
+
+
 
 <script>
 import axios from 'axios';
@@ -117,7 +140,7 @@ export default {
         text: '',
         url: ''
       },
-      
+      nameError: ''
     };
   },
 
@@ -126,7 +149,7 @@ export default {
   },
 
   methods: {
-     async fetchtemplateList() {
+    async fetchtemplateList() {
       const token = localStorage.getItem('token');
       try {
         const response = await fetch("http://localhost:8000/template", {
@@ -154,7 +177,20 @@ export default {
       this.showPopup = true;
     },
 
+    validateTemplateName() {
+      const regex = /^[a-z]+$/;
+      if (!regex.test(this.template.name)) {
+        this.nameError = 'Template name must contain only lowercase letters.';
+      } else {
+        this.nameError = '';
+      }
+    },
+
     async submitTemplate() {
+      if (this.nameError) {
+        return; // Prevent form submission if there are validation errors
+      }
+      
       this.template.components = [this.bodyComponent];
 
       if (this.selectedSubCategory !== 'ORDER_STATUS') {
@@ -228,7 +264,51 @@ export default {
 }
 </script>
 
+
+
 <style scoped>
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; 
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  border-radius: 16px;
+  background-color: #e7e7e7;
+  border: 1px solid #cacaca;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  background-color: #075e54;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+
+</style>
+
+
+
+
+
+
+<!-- <style scoped>
+
+.error {
+  border-color: red;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875em;
+  margin-top: 0.5em;
+}
 
 table {
   width: 100%;
@@ -373,4 +453,4 @@ th {
 .submit-button:hover {
   background-color: #218838;
 }
-</style>
+</style>  -->

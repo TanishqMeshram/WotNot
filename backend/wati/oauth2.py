@@ -52,6 +52,9 @@ def get_user_info(current_user: User.User = Depends(get_current_user)):
     return {
         "email": current_user.email,
         "name": current_user.username,
+        "Whatsapp_Business_Id" : current_user.WABAID,
+        "Phone_id" : current_user.Phone_id,
+        "Access_Token" : current_user.PAccessToken
         # Add more fields as needed
     }
 

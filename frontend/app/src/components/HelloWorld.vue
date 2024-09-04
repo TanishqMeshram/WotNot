@@ -12,9 +12,7 @@
 
   <div class="content">
 
-    <!-- Broadcast sidebar opitons -->
     <div class="sidebar" id="broadcast">
-      <!-- <a href="#" @click="showContent('Broadcast2')"><i class="fa-solid fa-tower-broadcast"></i>Broadcast Messages</a> -->
       <div v-if="activeSection === 'broadcast2'">
         <Broadcast />
       </div>
@@ -25,13 +23,11 @@
       <a href="#" @click="showContent('Broadcast3')"><i class="fa-regular fa-clock"></i>Scheduled Broadcasts</a>
     </div>
 
-    <!-- Contacts sidebar opitons -->
     <div class="sidebar" id="Contacts">
       <a href="#" @click="showContent('Contacts1')"><i class="fa-regular fa-address-book"></i>Manage Contacts</a>
       <a href="#" @click="showContent('Contacts2')"><i class="bi bi-tags"></i>Manage Tags</a>
     </div>
 
-    <!-- More sidebar opitons -->
     <div class="sidebar" id="More">
       <a href="#" @click="showContent('More1')">More 1</a>
 
@@ -40,24 +36,18 @@
 
     <div class="main-content">
 
-      <!-- Broadcast Content -->
-
       <div id="Broadcast1" class="content-section">
         <h2>Manage Templates</h2>
         <p>Your content for template messages goes here.</p>
       </div>
       <div id="Broadcast2" class="content-section">
 
-
-        <!-- Broadcast Message form -->
         <div class="container">
 
           <form id="messageForm">
             <h3>New Broadcast</h3>
-            <!--this static not working  -->
             <label>Broadcast Name</label>
             <input type="text" id="broadcast-name" placeholder="Broadcast Name">
-            <!--  -->
             <label>Recipients</label>
             <input type="text" id="phoneNumbers" placeholder="Enter phone numbers, comma-separated" required>
 
@@ -66,10 +56,8 @@
             <label for="templates">Choose a template</label>
             <select id="templates" required>
               <option value="" disabled selected>Select your option</option>
-              <!-- Options will be populated here by JavaScript -->
             </select>
 
-            <!--contactlist-->
             <h4>Contacts</h4>
             <table class="contact-table" id="contactTable">
               <thead>
@@ -80,18 +68,8 @@
                 </tr>
               </thead>
               <tbody id="contactTableBody">
-                <!-- Contacts will be populated here -->
               </tbody>
             </table>
-
-
-
-            <!-- <div class="search">
-                      <input type="text" id="searchPhone" placeholder="Search by Phone">
-                      <button id="searchButton">Search</button>
-                  </div>
-          
-                  <div id="contactsList"></div> -->
 
             <button type="submit">Send Message</button>
           </form>

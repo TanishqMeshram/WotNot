@@ -101,12 +101,14 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
+          // console.log(response)
           alert('Account created successfully!');
           // Clear the form fields
           document.querySelectorAll('input').forEach(input => input.value = '');
         } else if (data.detail) {
           alert(data.detail); // Show the error message from the API
         } else {
+        
           alert('Failed to create account. Please try again.');
         }
       })

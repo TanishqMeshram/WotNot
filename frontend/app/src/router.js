@@ -9,6 +9,7 @@ import MoreOptions1 from './components/more/MoreOptions1.vue';
 import LoginPage from './components/login/login.vue';
 import SignupPage from './components/signup/signup.vue';
 import DashboardView from './views/dashboardview.vue';
+import Profile from './views/profile.vue';
 
 // const routes = [
 //   {path: '/login', component: LoginPage, name: 'login'},
@@ -55,6 +56,7 @@ const routes = [
   // Public routes
   { path: '/login', component: LoginPage },
   { path: '/login/signup', component: SignupPage },
+  
   // { path: '/', component: PublicView },
 
   // Protected routes within the dashboard
@@ -69,6 +71,7 @@ const routes = [
       { path: '/contacts/contacts1', component: ContActs1, name: 'Contacts1' },
       { path: '/contacts/contacts2', component: ContActs2, name: 'Contacts2' },
       { path: '/more/more1', component: MoreOptions1, name: 'More1' },
+      { path: '/profile', component: Profile },
       { path: '', redirect: '/broadcast/broadcast2' },
       // Add more routes within the dashboard as needed
     ],

@@ -2,7 +2,6 @@
   <div id="app">
     <div class="navbar">
      
-      <!-- SVG Path here -->
       <div class="nav-left">
         <svg xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 512 512">
@@ -16,12 +15,10 @@
         </div>
       </div>
 
-      <!-- logout -->
       <div class="nav-right">
         <div v-if="user">
           
           <p><strong>Email:</strong> {{ user.email }}</p>
-          <!-- Display other user details as needed -->
         </div>
         <div v-else>
           <p>Loading user details...</p>
@@ -71,15 +68,24 @@
       <div class="main-content">
         <router-view></router-view>
       </div>
+      <ProfilePopup 
+        :visible="showProfilePopup" 
+        :user="user"
+        @close="showProfilePopup = false" 
+      />
     </div>
   </div>
 </template>
 
 <script>
 import { useRouter, useRoute } from 'vue-router';
+import ProfilePopup from './profile.vue'; 
 
 export default {
   name: 'DashboardView',
+  components: {
+    ProfilePopup 
+  },
   data() {
     return {
       navItems: [
@@ -89,6 +95,7 @@ export default {
       ],
       user: null,
       dropdownOpen: false,
+      showProfilePopup: false,
     }
   },
   setup() {
@@ -120,8 +127,6 @@ export default {
 
     await this.created();
     document.addEventListener('click', this.handleOutsideClick);
-
-    // Fetch contacts when the component is mounted
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleOutsideClick);
@@ -130,7 +135,6 @@ export default {
   methods: {
     async created() {
       try {
-        // Fetch user details on component creation
         const response = await fetch('http://localhost:8000/user', {
           method: 'GET',
           headers: {
@@ -145,7 +149,6 @@ export default {
         this.user = await response.json();
       } catch (error) {
         console.error('Error fetching user details:', error);
-        // Optionally handle the error (e.g., show a message to the user)
       }
     },
     
@@ -153,15 +156,12 @@ export default {
       this.dropdownOpen = !this.dropdownOpen;
     },
     goToProfile() {
-      // Logic to navigate to profile page
-      this.$router.push('/profile');
+      this.showProfilePopup = true;
     },
     goToSettings() {
-      // Logic to navigate to settings page
       this.$router.push('/settings');
     },
     logout() {
-      // Logic to logout
       localStorage.removeItem('token');
       this.$router.push('/login');
     },
@@ -181,10 +181,6 @@ function getSectionFromRoute(path) {
   return 'broadcast';
 }
 </script>
-
-
-
-
 
 <style>
 body {
@@ -228,7 +224,6 @@ body {
 
 svg {
   width: 32px;
-  /* or any desired size */
   height: 32px;
   padding: 15px 10px 10px 10px;
   color: #075e54;
@@ -322,18 +317,15 @@ svg {
 .sidebar {
   position: fixed;
   top: 50px;
-  /* Adjust based on navbar height */
   left: 0;
   width: 270px;
   height: calc(100vh - 65px);
-  /* Full height minus navbar height */
   background-color: #f5f6fa;
   padding: 10px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   margin-top: 15px;
   z-index: 999;
-  /* Ensure sidebar is above main content */
 }
 
 .sidebar a {
@@ -366,22 +358,17 @@ svg {
   flex: 1;
   margin-top: 65px;
   margin-left: 300px;
-  /* Width of the sidebar */
   padding: 20px;
   height: calc(100vh - 65px);
-  /* Full height minus navbar height */
   overflow-y: auto;
   background-color: #ffffff;
 
   padding: 50px 20px 20px 50px;
   box-sizing: border-box;
-  /* Ensure padding does not overflow */
 }
 
 .content-section {
-  /* Ensure sections have height set if they need to be scrollable */
   height: 100%;
-
 }
 
 
@@ -438,7 +425,5 @@ button {
 button:hover {
   background-color: #1ebd5b;
 }
-
-
 
 </style>
