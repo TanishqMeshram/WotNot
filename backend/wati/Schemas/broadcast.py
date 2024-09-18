@@ -3,17 +3,24 @@ from typing import List, Optional
 from datetime import datetime
 
 class input(BaseModel):
+    name:str
     recipients: list[str]
     template:str
-    broadcast_id:int
+    status:str
+    scheduled_time:str
+    type:str
 
 class input_broadcast(BaseModel):
     recipients: list[str]
     template:str
+    status:str
+    name:str
+    type:str
 
 class BroadcastListCreate(BaseModel): 
     name:str
     template:str
+    type:str
     contacts:list[str]
     success:int
     failed:int
@@ -23,6 +30,17 @@ class BroadcastListCreate(BaseModel):
 
 class BroadcastListUpdate(BaseModel): 
     task_id: Optional[str] = None 
+
+# class BroadcastAnalysis(BaseModel):
+#     id:int 
+#     broadcast_id:int
+#     message_id:str
+#     phone_no:str
+#     read:bool
+#     delivered:bool
+#     sent:bool
+
+    
 
 
 class Button(BaseModel):

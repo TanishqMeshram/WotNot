@@ -1,32 +1,35 @@
 <template>
-  <div class="content-section p-4">
-    <div class="flex flex-col md:flex-row justify-between mb-4">
+  <div class="content-section ">
+    <div class="flex flex-col md:flex-row justify-between mb-4 border-b pb-5">
       <div>
         <h2 class="text-xl md:text-2xl font-bold">Manage Templates</h2>
         <p class="text-sm md:text-base">Your content for scheduled broadcasts goes here.</p>
       </div>
 
-      <div >
+      <div class="bg-[#075e54] rounded-md shadow-lg mt-2 md:mt-0">
         <button @click="showPopup = true"
-          class="bg-[#075e54] text-[#f5f6fa] px-4 py-2 md:px-4 md:py-4 text-sm md:text-base rounded-md shadow-lg">
+          class="text-[#f5f6fa] px-4 py-2 md:px-4 md:py-4 text-sm md:text-base w-full md:w-auto">
           Create New Template
         </button>
 
       </div>
     </div>
 
-    <div class="bg-[#f5f6fa] rounded-md p-4 mb-4 shadow-lg">
+    <h3 class="text-xl md:text-2xs mb-4 text-gray-600"><b>Template List</b></h3>
+    
+      
       <div class="overflow-x-auto max-h-[60vh] custom-scrollbar">
+        
         <table class="w-full rounded-md border-collapse">
           <thead>
-            <tr class="border-b-2 bg-[#dddddd] text-center">
-              <th class="p-2 text-center md:p-4 border-b-2 bg-[#dddddd] sticky top-0 ">Name</th>
-              <th class="p-2 text-center md:p-4 border-b-2 bg-[#dddddd] sticky top-0 ">Language</th>
-              <th class="p-2 text-center md:p-4 border-b-2 bg-[#dddddd] sticky top-0 ">Status</th>
-              <th class="p-2 text-center md:p-4 border-b-2 bg-[#dddddd] sticky top-0 ">Category</th>
-              <th class="p-2 text-center md:p-4 border-b-2 bg-[#dddddd] sticky top-0 ">Sub Category</th>
-              <th class="p-2 text-center md:p-4 border-b-2 bg-[#dddddd] sticky top-0 ">ID</th>
-              <th class="p-2 text-center md:p-4 border-b-2 bg-[#dddddd] sticky top-0 z-10">Actions</th>
+            <tr class="border-b-2 bg-[#ffffff] text-center">
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#ffffff] sticky top-0 ">Name</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 ">Language</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 ">Status</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 ">Category</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 ">Sub Category</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 ">ID</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 z-10">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white">
@@ -58,13 +61,14 @@
           </tbody>
         </table>
       </div>
-    </div>
+    
 
     <div v-if="showPopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]"
       @click.self="closePopup">
       <div class="max-w-3xl mx-auto p-6 bg-white shadow rounded-lg">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold">Create Template Message</h2>
+          <h2 class="text-lg font-semibold">Create Message Template</h2>
+          <hr class="mb-4"/>
           <span class="relative bottom-1 text-4xl cursor-pointer text-black" @click="closePopup">&times;</span>
         </div>
 
@@ -72,9 +76,7 @@
           <div class="grid grid-cols-3 gap-4">
             <div>
               <label class="block below-402:text-custom-small text-sm font-medium">Template Name
-                <span class="relative text-sm" :class="{ 'text-black': !nameError, 'text-red-500': nameError }">
-                  *
-                </span>
+                <span class="text-red-800">*</span>
               </label>
               <div class="relative mb-2">
                 <input v-model="template.name" :placeholder="nameError || 'Template Name'" @blur="validateTemplateName"
@@ -87,8 +89,8 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium">Category</label>
-              <select v-model="selectedCategory" class="mt-1 p-2 w-full border border-gray-300 rounded-md h-10">
+              <label class="block text-sm font-medium">Category<span class="text-red-800">*</span></label>
+              <select v-model="selectedCategory" class="mt-1 p-2 w-full border border-gray-300 rounded-md h-10" required>
                 <option value="Marketing">Marketing</option>
                 <option value="Utility">Utility</option>
               </select>
@@ -97,7 +99,7 @@
             <!-- Language -->
             <div class="mb-4">
               <label class="block text-sm font-medium">Language</label>
-              <select class="mt-1 p-2 w-full border border-gray-300 rounded-md h-10">
+              <select class="mt-1 p-2 w-full border border-gray-300 rounded-md h-10" >
                 <option>English</option>
                 <!-- Add other languages here -->
               </select>
@@ -107,37 +109,16 @@
 
 
 
-          <!-- Template Type -->
-          <!-- <div class="mb-4">
-          <label class="block text-sm font-medium mb-2">Select Marketing template</label>
-          <div class="flex space-x-4">
-            <div>
-              <input type="radio" id="standard" name="template" value="standard" class="mr-2">
-              <label for="standard">Standard</label>
-            </div>
-            <div>
-              <input type="radio" id="catalog" name="template" value="catalog" class="mr-2">
-              <label for="catalog">Catalog</label>
-            </div>
-            <div>
-              <input type="radio" id="carousel" name="template" value="carousel" class="mr-2" disabled>
-              <label for="carousel">Carousel</label>
-            </div>
-            <div>
-              <input type="radio" id="limited" name="template" value="limited" class="mr-2" disabled>
-              <label for="limited">Limited Time Offers</label>
-            </div>
-          </div>
-        </div> -->
+       
 
           <label for="">Header</label>
           <input v-model="headerComponent.text" placeholder="Header Text (optional)"
             class="border border-[#ddd] p-2 rounded-md w-full mb-2" />
 
           <div class="mb-4">
-            <label class="block text-sm font-medium">Body</label>
+            <label class="block text-sm font-medium">Body<span class="text-red-800">*</span></label>
             <textarea v-model="bodyComponent.text" class="mt-1 p-2 w-full border border-gray-300 rounded-md h-12"
-              placeholder="Template Message..." rows="4"></textarea>
+              placeholder="Template Message..." rows="4" required></textarea>
           </div>
 
           <label for="">Footer</label>
@@ -325,7 +306,7 @@ export default {
     // 
     validateTemplateName() {
       // Updated regex to allow lowercase letters and underscores
-      const regex = /^[a-z_1-9]+$/;
+      const regex = /^[a-z_]+$/;
 
       if (this.template.name.trim() === '') {
         this.nameError = 'Template name is required';

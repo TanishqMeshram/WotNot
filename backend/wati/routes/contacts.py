@@ -21,7 +21,7 @@ def create_contact(contact: contacts.ContactCreate, db: Session = Depends(databa
         )
 
     db_contact = Contacts.Contact(
-        user_id=get_current_user.id,
+    user_id=get_current_user.id,
     name = contact.name,
     email = contact.email,
     phone = contact.phone,

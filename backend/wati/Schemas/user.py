@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 
@@ -11,6 +12,7 @@ class newuser(BaseModel):
     WABAID:int
     PAccessToken:str
     Phone_id:int
+    api_key:Optional[str]
 
 
 class register_user(BaseModel):

@@ -37,7 +37,7 @@ class CancelationMiddleware(Middleware):
         try:
             task_id = message.message_id
             status = get_task_status(task_id, db)  # Pass the session directly
-            if status == 'cancelled':
+            if status == 'Cancelled':
                 raise SkipMessage("Task has been canceled.")
         finally:
             db.close()  # Ensure the session is closed after use
@@ -51,10 +51,13 @@ dramatiq.set_broker(redis_broker)
 
 
 @dramatiq.actor(max_retries=0)
-def send_broadcast(template, recipients, API_url, headers,broadcast_id):
+def send_broadcast(template_name, recipients, broadcastId,API_url, headers,user_id):
+    
+    
     """
     Dramatiq actor to send broadcast messages.
     """
+
     success_count = 0
     failed_count=0
     errors = []
@@ -65,7 +68,7 @@ def send_broadcast(template, recipients, API_url, headers,broadcast_id):
             "to": recipient,
             "type": "template",
             "template": {
-                "name": template,
+                "name": template_name,
                 "language": {
                     "code": "en_US"
                 }
@@ -73,32 +76,74 @@ def send_broadcast(template, recipients, API_url, headers,broadcast_id):
         }
 
         response = requests.post(API_url, headers=headers, data=json.dumps(data))
+        
+        response_data = response.json()
+        
 
         if response.status_code == 200:
+            db: Session = SessionLocal()
             success_count += 1
+            wamid = response_data['messages'][0]['id']
+            phone_num=response_data['contacts'][0]["wa_id"]
+
+            MessageIdLog=Broadcast.BroadcastAnalysis(
+            user_id=user_id,
+            broadcast_id=broadcastId,
+            message_id=wamid,
+            status="sent",
+            phone_no=phone_num,  
+             )
+            
+            db.add(MessageIdLog)
+            db.commit()
+            db.refresh(MessageIdLog) 
+            db.close()
+
         else:
             failed_count += 1
             errors.append({"recipient": recipient, "error": response.json()})
+            db: Session = SessionLocal()
+            MessageIdLog=Broadcast.BroadcastAnalysis(
+            user_id=user_id,
+            broadcast_id=broadcastId,
+            status="failed",
+            phone_no=recipient,  
+             )
+            db.add(MessageIdLog)
+            db.commit()
+            db.refresh(MessageIdLog)
+            db.close()
 
 
     db: Session = SessionLocal()
-    broadcast=db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.id == broadcast_id).first()
+    broadcastLog = db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.id == broadcastId).first()
+    print(f"Broadcast after update: {broadcastLog}")
 
-    if not broadcast:
-        raise HTTPException(status_code=404,detail="Broadcast not found")
+    if not broadcastId:
+        raise Exception(f"Broadcast not found for ID {broadcastId}")
 
-    if broadcast_id:
-        broadcast.success=success_count
-        broadcast.status="Sucessful"
-        broadcast.failed=failed_count
-    db.add(broadcast)
-    db.commit()
-    db.refresh(broadcast)
+    try:
+        broadcastLog.success = success_count
+        broadcastLog.status = "Successful"
+        broadcastLog.failed = failed_count
+
+        db.add(broadcastLog)
+        db.commit()
+        db.refresh(broadcastLog)
+    except Exception as e:
+        db.rollback()  # Rollback in case of an error
+        print(f"Error while updating broadcast: {str(e)}")
+        raise e
+    finally:
+        db.close()  # Always close the session
+
     
+
     if errors:
         print(f"Failed to send some messages: {errors}")
         raise Exception(f"Failed to send broadcast: {errors}")
     
     print(f"Successfully sent {success_count} messages.{errors.count}")
 
- 
+
+   

@@ -1,7 +1,7 @@
 <template>
-  <div class="content-section p-4">
+  <div class="content-section ">
     <!-- Section Header -->
-    <div class="flex flex-col md:flex-row justify-between mb-4">
+    <div class="flex flex-col md:flex-row justify-between mb-4 border-b pb-5">
       <div>
         <h2 class="text-xl md:text-2xl font-bold">Scheduled Broadcasts</h2>
         <p class="text-sm md:text-base">Your content for scheduled broadcasts goes here.</p>
@@ -9,30 +9,39 @@
     </div>
 
     <!-- Broadcast List Table -->
-    <div class="bg-[#f5f6fa] rounded-md p-4 mb-4 shadow-lg">
+    <h3 class="text-xl md:text-2xs mb-4 text-gray-600"><b>Scheduled Broadcast List</b></h3>
       <div class="overflow-x-auto max-h-[60vh] custom-scrollbar">
         <table class="w-full border-collapse">
           <thead>
-            <tr class="bg-[#dddddd] text-center">
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">ID</th>
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Broadcast Name</th>
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Template</th>
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Contacts</th>
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Success</th>
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Failed</th>
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Status</th>
-              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0 z-10">Action</th>
+            <tr class="bg-[#ffffff] text-center">
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 ">ID</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0">Scheduled Time</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0">Broadcast Name</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0">Template</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0">Contacts</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0">Status</th>
+              <th class="p-2 text-center md:p-4 border-b-2 bg-[#ffffff] sticky top-0 z-10">Action</th>
             </tr>
           </thead>
           <tbody class="bg-white">
             <tr v-for="broadcast in broadcasts" :key="broadcast.id">
-              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.id }}</td>
-              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.name }}</td>
-              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.template }}</td>
-              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.contacts }}</td>
-              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.success }}</td>
-              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.failed }}</td>
-              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.status }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-center">{{ broadcast.id }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-center">{{ broadcast.name }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-center">{{ broadcast.scheduled_time }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-center">{{ broadcast.template }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-center">{{ broadcast.contacts.length }}</td>
+              <td class="p-2 md:p-4 text-center">
+                <div :class="{
+                  'bg-green-100 text-green-500 ': broadcast.status === 'Successful',
+                  'bg-blue-100 text-blue-500 ': broadcast.status === 'Scheduled',
+                  'bg-red-100 text-red-500 ': broadcast.status === 'Cancelled',
+                  'bg-yellow-100 text-yellow-500 ': broadcast.status === 'Partially Successful',
+                  'bg-yellow-100 text-yellow-600 ': broadcast.status === 'pending...',
+                  'border-[#ddd]': true
+                }" class="text-[80%] lg:text-[100%] rounded-lg">
+                  {{ broadcast.status }}
+                </div>
+              </td>
               <td class="border-[#ddd] p-2 md:p-4 text-center">
                 <button @click="DeleteScheduledBroadcast(broadcast.id)"
                   class="hover:bg-white rounded-full p-2 transition">
@@ -45,7 +54,6 @@
           </tbody>
         </table>
       </div>
-    </div>
   </div>
 </template>
 
@@ -53,6 +61,7 @@
 
 
 <script>
+import { useToast } from 'vue-toastification';
 
 export default {
   name: 'BroadCast3',
@@ -93,10 +102,9 @@ export default {
           id: broadcast.id,
           name: broadcast.name.split(' - ')[0],  // Extract the part before " - "
           template: broadcast.template,
-          contacts: broadcast.contacts.join(' , '), // Join the array without quotes
-          success: broadcast.success,
-          failed: broadcast.failed,
-          status: broadcast.status
+          contacts: broadcast.contacts, // Join the array without quotes
+          status: broadcast.status,
+          scheduled_time:broadcast.scheduled_time
         }));
       } catch (error) {
         console.error('Error fetching scheduled-broadcastlist:', error);
@@ -104,7 +112,10 @@ export default {
     },
 
     async DeleteScheduledBroadcast(broadcast_id) {
+      const toast= useToast();
       const token = localStorage.getItem('token');
+      const confirmDelete = confirm("Are you sure you want to delete this broadcast?");
+      if (!confirmDelete) return;
       try {
 
         const response = await fetch(`http://localhost:8000/broadcasts-delete/${broadcast_id}`, {
@@ -117,6 +128,9 @@ export default {
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
+        }
+        else{
+          toast.success("Broadcast deleted successfully")
         }
 
         this.fetchScheduledBroadcastList();

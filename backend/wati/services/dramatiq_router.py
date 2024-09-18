@@ -10,6 +10,7 @@ from ..oauth2 import get_current_user
 from .tasks import send_broadcast
 from datetime import datetime, timezone
 import pytz
+from sqlalchemy.orm import  Session
 from dramatiq import Actor
 from dramatiq import Message
 from dramatiq.middleware import Middleware,SkipMessage
@@ -24,9 +25,31 @@ router = APIRouter()
 @router.post("/schedule-template-message/")
 async def schedule_template_message(
     request: broadcast.input,
-    scheduled_time: str,
+    
+    db: Session = Depends(database.get_db),
     get_current_user: user.newuser = Depends(get_current_user)
+
 ):
+    
+    broadcastList=Broadcast.BroadcastList(
+        user_id=get_current_user.id,
+        name=request.name,
+        template=request.template,
+        contacts=request.recipients,
+        type=request.type,
+        success=0,
+        failed=0,
+        status="Scheduled",
+        scheduled_time=request.scheduled_time
+        
+    )
+    db.add(broadcastList)
+    db.commit()
+    db.refresh(broadcastList)
+
+    saved_broadcast_id = broadcastList.id
+
+
     """
     Endpoint to schedule a template message to be sent at a specified time.
     """
@@ -38,7 +61,7 @@ async def schedule_template_message(
 
     # Convert 'scheduled_time' string to a datetime object
     try:
-        scheduled_datetime = datetime.fromisoformat(scheduled_time).replace(tzinfo=timezone.utc)
+        scheduled_datetime = datetime.fromisoformat(request.scheduled_time).replace(tzinfo=timezone.utc)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use ISO 8601 format.")
 
@@ -50,12 +73,24 @@ async def schedule_template_message(
 
     # Schedule the task with the calculated delay and capture the task object
     task: Message = send_broadcast.send_with_options(
-        args=[request.template, request.recipients, API_url, headers,request.broadcast_id],
+        args=[request.template, request.recipients,saved_broadcast_id,API_url, headers,get_current_user.id],
         delay=delay * 1000  # delay is in milliseconds
     )
     
+    broadcastLogTaskid=db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.id==saved_broadcast_id).first()
+
+    if not broadcastLogTaskid:
+        raise HTTPException(status_code=404,detail="Broadcast not found")
+    
+    if saved_broadcast_id:
+            broadcastLogTaskid.task_id=task.message_id
+    db.add(broadcastLogTaskid)
+    db.commit()
+    db.refresh(broadcastLogTaskid) 
+
+
     # Return the message indicating the task was scheduled and include the task ID
     return {
-        "message": f"Message {request.broadcast_id}scheduled to be sent at {scheduled_time}.",
+        "message": f"Message {saved_broadcast_id}scheduled to be sent at {request.scheduled_time}.",
         "task_id": task.message_id  # Access the message_id attribute to get the task ID
     }

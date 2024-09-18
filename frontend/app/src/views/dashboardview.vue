@@ -17,9 +17,7 @@
       <div class="nav-right">
         <div class="flex" v-if="user">
 
-          <p class="text-green-700 mr-2"> {{ user.email }}</p>
-
-          
+          <p class="text-green-700"> {{ user.email }}</p>
         </div>
         <div v-else>
           <p>Loading user details...</p>
@@ -46,11 +44,12 @@
             <i class="bi bi-wallet2"></i>
           </button>
         </div>
-
       </div>
 
 
-      <!-- Wallet Modal Pop-up -->
+    </div>
+
+    <!-- Wallet Modal Pop-up -->
     <div v-if="walletModalOpen" class="modal-overlay" @click="toggleWalletModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -62,12 +61,6 @@
         <button @click="topUpBalance" class="topup-btn">Top Up Balance</button>
       </div>
     </div>
-
-
-
-    </div>
-
-   
 
     <div class="flex flex-1">
       <!-- Hamburger button for mobile view -->
@@ -82,17 +75,17 @@
         v-if="currentSection === 'broadcast'">
         <a href="#" @click.prevent="navigate('/broadcast/broadcast2')"
           :class="{ 'text-green-900 font-semibold': isActive('/broadcast/broadcast2'), 'hover:bg-gray-200 hover:font-semibold': !isActive('/broadcast/broadcast2')}"
-          class="block p-3 text-gray-700 rounded-lg ">
+          class="block p-3 text-gray-600 rounded-lg ">
           <i class="bi bi-broadcast mr-2"></i>Broadcast Messages
         </a>
         <a href="#" @click.prevent="navigate('/broadcast/broadcast1')"
           :class="{ 'text-green-900 font-semibold': isActive('/broadcast/broadcast1') ,'hover:bg-gray-200 hover:font-semibold': !isActive('/broadcast/broadcast1') }"
-          class="block p-3 text-gray-700 rounded-lg ">
+          class="block p-3 text-gray-600 rounded-lg ">
           <i class="bi bi-chat-right-text-fill mr-2"></i>Manage Templates
         </a>
         <a href="#" @click.prevent="navigate('/broadcast/broadcast3')"
           :class="{ 'text-green-900 font-semibold': isActive('/broadcast/broadcast3'),'hover:bg-gray-200 hover:font-semibold': !isActive('/broadcast/broadcast3') }"
-          class="block p-3 text-gray-700 rounded-lg ">
+          class="block p-3 text-gray-600 rounded-lg ">
           <i class="bi bi-calendar2-range-fill mr-2"></i>Scheduled Broadcasts
         </a>
       </div>
@@ -103,12 +96,12 @@
         :class="{ '-translate-x-full': !isMenuOpen, 'translate-x-0': isMenuOpen }" v-if="currentSection === 'Contacts'">
         <a href="#" @click.prevent="navigate('/contacts/contacts1')"
           :class="{ 'text-green-900 font-semibold': isActive('/contacts/contacts1'), 'hover:bg-gray-200 hover:font-semibold': !isActive('/contacts/contacts1')  }"
-          class="block p-3 text-gray-700 rounded-lg ">
+          class="block p-3 text-gray-600 rounded-lg ">
           <i class="bi bi-journal-bookmark-fill mr-2 "></i>Manage Contacts
         </a>
         <a href="#" @click.prevent="navigate('/contacts/contacts2')"
           :class="{ 'text-green-900 font-semibold': isActive('/contacts/contacts2'),'hover:bg-gray-200 hover:font-semibold': !isActive('/contacts/contacts2')  }"
-          class="block p-3 text-gray-700 rounded-lg ">
+          class="block p-3 text-gray-600 rounded-lg ">
           <i class="bi bi-tags-fill mr-2"></i>Manage Tags
         </a>
       </div>
@@ -119,13 +112,13 @@
         :class="{ '-translate-x-full': !isMenuOpen, 'translate-x-0': isMenuOpen }" v-if="currentSection === 'Integration'">
         <a href="#" @click.prevent="navigate('/integration/integration1')"
           :class="{ 'text-green-900 font-semibold': isActive('/integration/integration1') ,'hover:bg-gray-200 hover:font-semibold': !isActive('/integration/integration1') }"
-          class="block p-3 text-gray-700 rounded-lg  "><i class="bi bi-link-45deg"></i>
+          class="block p-3 text-gray-600 rounded-lg  "><i class="bi bi-link-45deg"></i>
           Integration
         </a>
       </div>
 
       <!-- Main Content -->
-      <div class="flex-1 mt-16 md:ml-72 p-8 bg-white overflow-y-auto h-[calc(100vh-65px)]">
+      <div class="flex-1 mt-16 md:ml-64 p-8 bg-white overflow-y-auto h-[calc(100vh-65px)]">
         <router-view></router-view>
       </div>
 
@@ -159,8 +152,8 @@ export default {
       user: null,
       dropdownOpen: false,
       showProfilePopup: false,
-      walletModalOpen: false ,
       isMenuOpen: false,
+      walletModalOpen: false ,
       currentBalance: 0
     }
   },
@@ -269,7 +262,6 @@ export default {
     }
 },
 
-
     toggleDropdown() {
       this.dropdownOpen = !this.dropdownOpen;
     },
@@ -280,7 +272,6 @@ export default {
     topUpBalance() {
       alert('Coming Soon...');
     },
-
     goToProfile() {
       this.showProfilePopup = true;
     },
@@ -318,111 +309,7 @@ function getSectionFromRoute(path) {
 
 
 
-<style scoped>
-/* Wallet Button Styling */
-.wallet-btn {
-  background: linear-gradient(45deg, #34eb83, #2ebf91);
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 10px;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.wallet-btn i {
-  margin-right: 10px;
-}
-
-.wallet-btn:hover {
-  transform: translateY(-3px);
-  background: linear-gradient(45deg, #28b479, #249e85);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Modal Overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-/* Modal Content */
-.modal-content {
-  background-color: #ffffff;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  width: 400px;
-  text-align: center;
-  position: relative;
-  animation: fadeIn 0.3s ease;
-}
-
-/* Modal Header */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  position: relative;
-}
-
-/* Close Button (X) */
-.close-btn {
-  position: absolute;
-  right: 15px;
-  top: 15px;
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #333;
-  transition: color 0.3s ease;
-}
-
-.close-btn:hover {
-  color: #ff0000;
-}
-
-/* Top-Up Button */
-.topup-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 30px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: background-color 0.3s ease;
-}
-
-.topup-btn:hover {
-  background-color: #218838;
-}
-
-/* Fade-in Animation for Modal */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+<style>
 
 body {
   font-family: Arial, sans-serif;
@@ -589,6 +476,115 @@ button:hover {
   background-color: #1ebd5b;
 }
 
+.wallet-btn {
+  background: linear-gradient(45deg, #34eb83, #2ebf91);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.wallet-btn i {
+  margin-right: 10px;
+}
+
+.wallet-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(45deg, #28b479, #249e85);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  text-align: center;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Close Button (X) */
+.close-btn {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #ff0000;
+}
+
+/* Top-Up Button */
+.topup-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 30px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.topup-btn:hover {
+  background-color: #218838;
+}
+
+/* Fade-in Animation for Modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 </style>
+
+
+
+
+
+
 

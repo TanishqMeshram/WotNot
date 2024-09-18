@@ -11,7 +11,8 @@ module.exports = {
       },
       fontSize: {
         'custom-small': '0.780rem', // Custom font size
-      }
+      },
+      
     },
   },
   plugins: [],

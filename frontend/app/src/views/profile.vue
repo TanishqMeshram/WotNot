@@ -1,3 +1,4 @@
+
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50" v-if="visible" @click.self="close">
     <div class="w-80 h-full bg-white shadow-lg transform transition-transform duration-300" :class="visible ? 'translate-x-0' : 'translate-x-full'">

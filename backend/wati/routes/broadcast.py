@@ -12,23 +12,187 @@ import csv
 import io
 from ..oauth2 import get_current_user
 from dramatiq import get_broker
-from dramatiq import Message
+import asyncio
+
 from ..crud.template import send_template_to_whatsapp
-from ..services import tasks
+
+from fastapi import APIRouter,Depends,HTTPException, File, UploadFile,Request
+from starlette.responses import PlainTextResponse
+from ..oauth2 import get_current_user
+from ..crud.template import send_template_to_whatsapp# Replace with your actual WhatsApp Business API endpoint and token
+import logging
+
 # Replace with your actual WhatsApp Business API endpoint and token
 
 
 router=APIRouter( tags=['Broadcast'])
 
-# access_token = "EAAXZCr1Or3lkBO9B0ZA84JDwoXgYd2BFqYA0Vn6BU2ZBk31OFEy3RPOwn68HWkabINs8y7OF2D2iDT5Uf8wwhcL51jlGANLZBUpGl26ezAAUM4f7pa3a80GUHVGQrP3n1z9dOGi54tZC3bXuK6kGcCsregUdZCl0y6c2oeBgRlw2ZBkSJFZCKuAtmbz1N9lk3uyZA5ZAU1KzXN1KZCeh1UJRgZDZD"
-# BUSINESS_ACCOUNT_ID = '362091573648558'
+WEBHOOK_VERIFY_TOKEN = "12345"  # Replace with your verification token
+
+# Meta Webhook verification endpoint
+@router.get("/meta-webhook")
+async def verify_webhook(request: Request):
+    verify_token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+    hubmode = request.query_params.get("hub.mode")
+    print(f"Received verify_token: {challenge}, Expected: {WEBHOOK_VERIFY_TOKEN}")
+    if verify_token == WEBHOOK_VERIFY_TOKEN and hubmode == "subscribe" :
+        return PlainTextResponse(content=request.query_params.get("hub.challenge"),status_code=200)
+    
+    else:
+        raise HTTPException(status_code=403, detail="Verification token mismatch")
+    
+# Webhook event listener to receive message status updates
+
+
+@router.post("/meta-webhook")
+async def receive_meta_webhook(request: Request, db: Session = Depends(database.get_db)):
+    try:
+        # Parse the incoming webhook request
+        body = await request.json()
+        print(body)
+
+        # Ensure 'entry' exists in the body
+        if "entry" not in body:
+            raise HTTPException(status_code=400, detail="Invalid webhook format")
+
+        # Process each entry
+        for event in body["entry"]:
+            if "changes" not in event:
+                raise HTTPException(status_code=400, detail="Missing 'changes' key in entry")
+            
+            # Iterate through each change
+            for change in event["changes"]:
+                if "value" not in change:
+                    raise HTTPException(status_code=400, detail="Missing 'value' key in changes")
+
+                value = change["value"]
+
+                # Handle messages (replies)
+                if "statuses" in value:
+                    for status in value["statuses"]:
+                        # Check if the necessary keys exist
+                        if "recipient_id" not in status or "id" not in status or "status" not in status or "timestamp" not in status:
+                            raise HTTPException(status_code=400, detail="Missing keys in statuses")
+
+                        
+                        message_status = status["status"]
+                        wamid=status['id']
+
+                        message_read=False
+                        message_delivered=False
+                        message_sent=False
+
+                        
+                        if(message_status=="read"):
+                            message_read=True
+                            message_delivered=True
+                            message_sent=True
+                            
+                        
+                        if(message_status=="delivered"):
+                            message_read=False
+                            message_delivered=True
+                            message_sent=True
+                            
+
+
+                        if(message_status=="sent"):
+                            message_read=False
+                            message_delivered=False
+                            message_sent=True
+                            
+
+
+
+                        broadcast_report = (
+                                db.query(Broadcast.BroadcastAnalysis)
+                                .filter( Broadcast.BroadcastAnalysis.message_id==wamid)
+                                .first()
+                            )
+                        
+                        if not broadcast_report:
+                                raise HTTPException(status_code=404,detail="Broadcast not found")
+
+                        if wamid:
+                                broadcast_report.read=message_read
+                                broadcast_report.delivered=message_delivered
+                                broadcast_report.sent=message_sent
+                                broadcast_report.status=message_status
+
+                        db.add(broadcast_report)
+                        db.commit()
+                        db.refresh(broadcast_report) 
+                
+                elif "messages" in value:
+                    for message in value["messages"]:
+
+                        message_reply=True
+                        message_status='replied'
+                         
+                        wamid=message['context']['id']
+                        broadcast_report = (
+                                db.query(Broadcast.BroadcastAnalysis)
+                                .filter( Broadcast.BroadcastAnalysis.message_id==wamid)
+                                .first()
+                            )
+                        
+                        if not broadcast_report:
+                                raise HTTPException(status_code=404,detail="Broadcast not found")
+
+                        if wamid:
+                                broadcast_report.replied=message_sent=message_reply
+                                broadcast_report.status=message_status
+
+                        db.add(broadcast_report)
+                        db.commit()
+                        db.refresh(broadcast_report) 
+
+                         
+                         
+
+      
+
+                       
+        return {"status": "ok"}
+
+    except KeyError as e:
+        logging.error(f"Missing key in webhook payload: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Missing key: {str(e)}")
+    except Exception as e:
+        logging.error(f"Error processing webhook: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 
 
 # Broadcast 2 routes
 
+
+
+
 @router.post("/send-template-message/")
-async def send_template_message(request:broadcast.input,get_current_user: user.newuser=Depends(get_current_user)):
+async def send_template_message(request:broadcast.input_broadcast,get_current_user: user.newuser=Depends(get_current_user),db: Session = Depends(database.get_db)):
     print(request)
+
+    broadcastList=Broadcast.BroadcastList(
+        user_id=get_current_user.id,
+        name=request.name,
+        template=request.template,
+        contacts=request.recipients,
+        type=request.type,
+        success=0,
+        failed=0,
+        status="processing..."
+        
+    )
+    db.add(broadcastList)
+    db.commit()
+    db.refresh(broadcastList)
+    
+    saved_broadcast_id = broadcastList.id
+
+
     API_url=f"https://graph.facebook.com/v20.0/{get_current_user.Phone_id}/messages"
     headers = {
         "Authorization": f"Bearer {get_current_user.PAccessToken}",
@@ -37,6 +201,7 @@ async def send_template_message(request:broadcast.input,get_current_user: user.n
 
     success_count = 0
     errors = []
+    failed_count = 0
 
     for recipient in request.recipients:
         data = {
@@ -52,11 +217,62 @@ async def send_template_message(request:broadcast.input,get_current_user: user.n
         }
 
         response = requests.post(API_url, headers=headers, data=json.dumps(data))
+        response_data = response.json()
+
 
         if response.status_code == 200:
             success_count += 1
+
+            wamid = response_data['messages'][0]['id']
+            phone_num=response_data['contacts'][0]["wa_id"]
+
+            MessageIdLog=Broadcast.BroadcastAnalysis(
+            user_id=get_current_user.id,
+            broadcast_id=saved_broadcast_id,
+            message_id=wamid,
+            status="sent",
+            phone_no=phone_num,  
+             )
+            db.add(MessageIdLog)
+            db.commit()
+            db.refresh(MessageIdLog) 
+
+        
         else:
+            failed_count += 1
             errors.append({"recipient": recipient, "error": response.json()})
+
+            MessageIdLog=Broadcast.BroadcastAnalysis(
+            user_id=get_current_user.id,
+            broadcast_id=saved_broadcast_id,
+            status="failed",
+            phone_no=recipient,  
+             )
+            db.add(MessageIdLog)
+            db.commit()
+            db.refresh(MessageIdLog) 
+
+        
+
+        # Access the wamid
+        
+
+       
+    
+
+
+    broadcast=db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.id == saved_broadcast_id).first()
+
+    if not broadcast:
+            raise HTTPException(status_code=404,detail="Broadcast not found")
+
+    if saved_broadcast_id:
+            broadcast.success=success_count
+            broadcast.status="Successful"
+            broadcast.failed=failed_count
+    db.add(broadcast)
+    db.commit()
+    db.refresh(broadcast) 
     
     
     return {
@@ -95,6 +311,7 @@ def broadcastList(request:broadcast.BroadcastListCreate,db: Session = Depends(da
         name=request.name,
         template=request.template,
         contacts=request.contacts,
+        type=request.type,
         success=request.success,
         failed=request.failed,
         status=request.status,
@@ -186,14 +403,14 @@ async def delete_scheduled_broadcast(broadcast_id: str, db: Session = Depends(da
         raise HTTPException(status_code=404, detail="Broadcast not found")
     
     # Update the status to 'canceled'
-    broadcast.status = "cancelled"
+    broadcast.status = "Cancelled"
     db.commit()
     
     return {"detail": "Scheduled broadcast has been canceled."}
 
 
 
-
+import logging
 
 @router.post("/create-template", response_model=broadcast.TemplateResponse)
 async def create_template(template: broadcast.TemplateCreate , request : Request , get_current_user: user.newuser=Depends(get_current_user)):
@@ -203,4 +420,16 @@ async def create_template(template: broadcast.TemplateCreate , request : Request
         response = await send_template_to_whatsapp(template , get_current_user.PAccessToken , get_current_user.WABAID )
         return response
     except HTTPException as e:
+        logging.critical(e)
         raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
+
+@router.get("/broadcast-report/{broadcast_id}")
+def BroadcastReport(broadcast_id:int,get_current_user: user.newuser=Depends(get_current_user),db: Session = Depends(database.get_db)):
+
+    broadcast_data=db.query(Broadcast.BroadcastAnalysis).filter((Broadcast.BroadcastAnalysis.user_id==get_current_user.id) &(Broadcast.BroadcastAnalysis.broadcast_id==broadcast_id)).all()
+
+    if not broadcast_data:
+        raise HTTPException(status_code=404,detail="Broadcast data not found")
+
+    return broadcast_data

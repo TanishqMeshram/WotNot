@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+  <div class="bg-container">
     <div class="max-w-md w-full bg-white p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl sm:text-3xl font-semibold text-center text-gray-800 mb-4">Get started with Wotnot</h2>
 
@@ -51,7 +51,7 @@
 
       <p class="mt-4 text-center text-sm">
         Already have an account?
-        <a href="http://localhost:8080/#/login" class="text-[#075e54] font-semibold mb-4">Login</a>
+        <a href="" class="text-[#075e54] font-semibold mb-4" @click="redirectLogin">Login</a>
       </p>
     </div>
   </div>
@@ -103,7 +103,11 @@
         }
       })
       .catch(error => console.error(error));
-  }
+  },
+  redirectLogin() {
+      
+      this.$router.push('/');
+    },
   
   
     },
@@ -111,213 +115,29 @@
   </script>
   
   
-  
-  <!-- <style scoped>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    height: 100vh;
-    overflow: hidden; /* Prevents body scroll */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f4f4f4; /* Background color */
-  }
-  .signup-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90vh;
-    background-color: #f7f7f7;
-    padding: 18px;
-    box-sizing: border-box;
-  }
-  
-  .signup-container {
-    width: 100%;
-    max-width: 500px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    box-sizing: border-box;
-  }
-  
-  h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  
-  p {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .auth-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  
-  .auth-button {
+  <style scoped>
+  .bg-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
-    padding: 10px;
-    border-radius: 4px;
-    font-size: 14px;
-    color: #fff;
-    width: 48%;
+    min-height: 100vh; /* equivalent to min-h-screen */
+    
+    background-image: url("@/assets/LoginPage.png");
+    background-position: center; /* equivalent to bg-gray-100 */
+    padding: 0 16px; /* equivalent to px-4 */
   }
   
-  .auth-button img {
-    width: 20px; /* Adjust size as needed */
-    margin-right: 10px; /* Space between logo and text */
-  }
-  
-  .auth-button.google {
-    background-color: #0b0c0c;
-    margin-right: 2%; /* Add margin-right to create space */
-  }
-  
-  .auth-button.facebook {
-    background-color: #0c0e0e;
-  }
-  
-  .name-fields {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-  }
-  
-  .name-fields .input-group {
-    flex: 1;
-    margin-right: 10px;
-  }
-  
-  .name-fields .input-group:last-child {
-    margin-right: 0;
-  }
-  
-  .input-group {
-    margin-bottom: 2px; /* Reduced margin between input groups */
-    text-align: center;
-  }
-  
-  .input-group.full-width input[type="text"],
-  .input-group.full-width input[type="email"],
-  .input-group.full-width input[type="password"],
-  .input-group.full-width input[type="tel"] {
-    width: 100%;
-    max-width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: -8px; /* Reduced margin below labels */
-    font-size: 14px;
-    font-weight:normal;
-    text-align: left;
-  }
-  
-  .phone-input {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  select {
-    width: 25%;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    margin-right: -1px;
-    box-sizing: border-box;
-  }
-  
-  input[type="tel"] {
-    width: 75%;
-    border-radius: 0 4px 4px 0;
-  }
-  
-  .submit-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #075e53;
-    color: #fff;
-    font-size: 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-    box-sizing: border-box;
-  }
-  
-  .submit-button:hover {
-    background-color: #23a455;
-  }
-  
-  a {
-    color: #075e53;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  
-  a:hover {
-    text-decoration: underline;
-  } 
-  
-  @media (max-width: 600px) {
-    .signup-container {
-      width: 100%;
-      padding: 10px;
-    }
-  
-    .auth-buttons {
-      flex-direction: column;
-    }
-  
-    .auth-button {
-      width: 100%;
-      margin-bottom: 10px;
-    }
-  
-    .name-fields {
-      flex-direction: column;
-    }
-  
-    .name-fields .input-group {
-      margin-right: 0;
-      margin-bottom: 10px;
-    }
-  
-    .input-group {
-      margin-bottom: 10px;
-    }
-  
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="tel"] {
-      width: 100%;
-    }
-  
-    select {
-      width: 30%;
-    }
-  
-    .submit-button {
-      width: 100%;
+  /* Responsive padding for different screen sizes */
+  @media (min-width: 640px) { /* equivalent to sm:px-6 */
+    .container {
+      padding: 0 24px;
     }
   }
-  </style> -->
+  
+  @media (min-width: 1024px) { /* equivalent to lg:px-8 */
+    .container {
+      padding: 0 32px;
+    }
+  }
+</style>
+  
