@@ -1,73 +1,110 @@
 <template>
   <div class="content-section">
-    <button @click="showPopup = true">Add Contact</button>
-    <PopUp1 v-if="showPopup" @close="closePopup">
-      <form @submit.prevent="submitForm" id="contactForm">
-        <input type="hidden" v-model="contact.id" id="contactId">
-        <input type="text" v-model="contact.name" id="name" placeholder="Name" required>
-        <input type="email" v-model="contact.email" id="email" placeholder="Email" required>
-        <input type="text" v-model="contact.phone" id="phone" placeholder="Phone" required>
-        <input type="text" v-model="contact.tags" id="tags" placeholder="Tags (comma separated)">
-        <button type="submit">{{ contact.id ? 'Update Contact' : 'Add Contact' }}</button>
-      </form>
+    <button @click="showPopup = true"
+      class="bg-[#075e54] text-white py-2 px-4 rounded lg:right-[-85%] md:mb-[1%] md:mt-[3%] mb-[2%] md:relative md:right-[-75%]">Add Contact</button>
 
-    </PopUp1>
-    <!-- Action Popup -->
-    <PopUpSmall v-if="showActionPopup" @close="closeActionPopup">
-      <div class="action-popup-content">
-        <p>What action do you want to take?</p>
-        <div class="action-buttons">
-          <button @click="modifyContact">Modify</button>
-          <button @click="deleteContact(selectedContact.phone)">Delete</button>
+    <PopUp1 v-if="showPopup" @close="closePopup">
+      <form @submit.prevent="submitForm" id="contactForm" class="p-6 w-[400px]">
+        <h2 class="text-xl font-semibold mb-4">{{ isEditing ? 'Edit Contact' : 'Add Contact' }}</h2>
+        <hr class="mb-4" />
+
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium">Name</label>
+          <input type="text" v-model="contact.name" id="name" placeholder="Name" required
+            class="border border-gray-300 rounded px-3 py-2 w-full">
         </div>
 
+        <div class="mb-4">
+          <label for="phone" class="block text-sm font-medium">Phone Number</label>
+          <div class="flex">
+            <select v-model="contact.countryCode" class="border border-gray-300 rounded-l px-3 py-2 w-20 mr-2">
+              <option value="+1">+1</option>
+              <option value="+44">+44</option>
+              <option value="+91">+91</option>
+            </select>
+            <input type="text" v-model="contact.phone" id="phone" placeholder="9876543210" required
+              class="border border-gray-300 rounded-r px-3 py-2 w-full">
+          </div>
+        </div>
+
+        <input type="email" v-model="contact.email" id="email" placeholder="Email" required
+          class="border border-gray-300 rounded px-3 py-2 mb-2 w-full">
+
+        <input type="text" v-model="contact.tags" id="tags" placeholder="Tags (comma separated)"
+          class="border border-gray-300 rounded px-3 py-2 mb-2 w-full">
+
+        <div class="flex justify-between mt-6">
+          <button @click="closePopup" type="button"
+            class="border-[2px] bg-gray-200 hover:bg-[#c2c1c1] text-black rounded-lg px-4 py-2 ">
+            Cancel
+          </button>
+          <button type="submit" class="bg-[#23a455] text-white px-4 py-2 rounded">
+            Save
+          </button>
+        </div>
+      </form>
+    </PopUp1>
+
+    <div class="bg-gray-100 rounded-lg p-4 mb-5 max-w-[100%] mx-auto shadow-md custom-scrollbar">
+      <div class="overflow-x-auto max-h-[60vh] custom-scrollbar">
+        <table class="w-full rounded-lg border-collapse block">
+          <thead>
+            <tr>
+              <th class="py-5 px-3 border-white m-2 text-left bg-[#dddddd] sticky top-0">id</th>
+              <th class="py-5 px-3 border-white m-2 text-left bg-[#dddddd] sticky top-0">contacts_Name</th>
+              <th class="py-5 px-3 border-white m-2 text-left bg-[#dddddd] sticky top-0">phone_number</th>
+              <th class="py-5 px-3 border-white m-2 text-left bg-[#dddddd] sticky top-0">email</th>
+              <th class="py-5 px-3 border-white m-2 text-left bg-[#dddddd] sticky top-0">tags</th>
+              <th class="py-5 px-3 border-white m-2 text-left bg-[#dddddd] sticky top-0">Created at</th>
+              <th class="py-5 px-3 border-white m-2 text-center bg-[#dddddd] sticky top-0 z-10">Action</th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white">
+            <tr v-for="contact in contacts" :key="contact.id">
+              <td class="border-gray-300 py-5 px-3">{{ contact.id }}</td>
+              <td class="border-gray-300 py-5 px-3">{{ contact.name }}</td>
+              <td class="border-gray-300 py-5 px-3">{{ contact.phone }}</td>
+              <td class="border-gray-300 py-5 px-3">{{ contact.email }}</td>
+              <td class="border-gray-300 py-5 px-4 w-[10%]">{{ contact.tags.join(', ') }}</td>
+              <td class="border-gray-300 py-5 px-3">{{ formatDate(contact.created_at) }}</td>
+              <td class="border-gray-300 py-5 px-3">
+                <div class="flex justify-center">
+                  <button @click="modifyContact(contact)" class="hover:bg-white rounded-full p-2 transition">
+                    <lord-icon src="https://cdn.lordicon.com/wuvorxbv.json" trigger="hover"
+                      style="width:32px;height:32px">
+                    </lord-icon>
+                  </button>
+                  <button @click="deleteContact(contact.phone)"
+                    class="hover:bg-white rounded-full p-2 transition">
+                    <lord-icon src="https://cdn.lordicon.com/skkahier.json" trigger="hover"
+                      colors="primary:#ff5757,secondary:#000000" style="width:32px;height:32px">
+                    </lord-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </PopUpSmall>
-    <div class="contactsListContainer">
-
-      <table class="contactsList-table">
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>contacts_Name</th>
-            <th>phone_number</th>
-            <th>email</th>
-            <th>tags</th>
-
-            <th>Action</th><!-- Action-->
-
-          </tr>
-        </thead>
-        <tbody>
-
-          <tr v-for="contact in contacts" :key="contact.id">
-            <td>{{ contact.id }}</td>
-            <td>{{ contact.name }}</td>
-            <td>{{ contact.phone }}</td>
-            <td>{{ contact.email }}</td>
-            <td>{{ contact.tags }}</td>
-
-            <td>
-              <button @click="openActionPopup(contact)">Action</button>
-            </td>
-
-          </tr>
-
-        </tbody>
-      </table>
     </div>
   </div>
 </template>
 
 <script>
 import PopUp1 from "../popups/popup1";
-import PopUpSmall from "../popups/popup_small";
+// import PopUpSmall from "../popups/popup_small";
 export default {
   components: {
-    PopUp1, PopUpSmall
+    PopUp1,
+    // PopUpSmall
   },
   async mounted() {
     await this.fetchContactList();
+
+    const script = document.createElement('script');
+    script.src = "https://cdn.lordicon.com/lordicon.js";
+    document.body.appendChild(script);
   },
   name: "ContActs1",
   data() {
@@ -79,50 +116,59 @@ export default {
         name: "",
         email: "",
         phone: "",
+        countryCode: "+91",
         tags: "",
       },
       selectedContact: null,
       contacts: [],
+      isEditing: false
     };
   },
   methods: {
-    async submitForm() {
-      const { id, name, email, phone, tags } = this.contact;
 
-      // Ensure tags are correctly handled, whether they're a string or already an array
-      const tagArray = Array.isArray(tags)
-        ? tags
-        : typeof tags === 'string'
-          ? tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0) // Ensure no empty tags
-          : [];
+  async submitForm() {
+  const { id, name, email, phone, countryCode, tags } = this.contact;
 
-      const url = id ? `http://localhost:8000/contacts/${id}` : "http://localhost:8000/contacts/";
-      const method = id ? "PUT" : "POST";
-      const token = localStorage.getItem("token");
+  let fullPhoneNumber = phone;
+  if (countryCode && countryCode.trim() !== '') {
+    fullPhoneNumber = `${countryCode} ${phone}`;
+  }
 
-      try {
-        const response = await fetch(url, {
-          method: method,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name, email, phone, tags: tagArray }),
-        });
+  const tagArray = Array.isArray(tags)
+    ? tags
+    : typeof tags === 'string'
+      ? tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0) // Ensure no empty tags
+      : [];
 
-        if (response.ok) {
-          alert("Contact saved successfully");
-          this.clearForm();
-          this.fetchContactList();
-        } else {
-          const errorData = await response.json();
-          alert(`Error: ${errorData.detail}`);
-        }
-      } catch (error) {
-        console.error("Error saving contact:", error);
-        alert("Error saving contact");
-      }
-    },
+  const url = id ? `http://localhost:8000/contacts/${id}` : "http://localhost:8000/contacts/";
+  const method = id ? "PUT" : "POST";
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, phone: fullPhoneNumber, tags: tagArray }), // Send full phone number
+    });
+
+    if (response.ok) {
+      alert("Contact saved successfully");
+      this.clearForm();
+      this.fetchContactList();
+    } else {
+      const errorData = await response.json();
+      alert(`Error: ${errorData.detail}`);
+    }
+  } catch (error) {
+    console.error("Error saving contact:", error);
+    alert("Error saving contact");
+  }
+},
+
+
     clearForm() {
       this.contact = {
         id: "",
@@ -137,6 +183,13 @@ export default {
       this.showPopup = false;
       this.clearForm();  // Clear the form when closing the popup
     },
+
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', options).replace(/,/g, '');
+    },
+
     async fetchContactList() {
       const token = localStorage.getItem("token");
       try {
@@ -153,26 +206,29 @@ export default {
         }
 
         const contactsList = await response.json();
+        console.log(contactsList)
         this.contacts = contactsList.map((contact) => ({
           id: contact.id,
           name: contact.name,
           phone: contact.phone,
           email: contact.email,
           tags: contact.tags,
+          created_at: this.formatDate(contact.created_at),
         }));
       } catch (error) {
         console.error("Error fetching contact:", error);
       }
     },
-    openActionPopup(contact) {
-      this.selectedContact = contact;
-      this.showActionPopup = true;
-    },
+    // openActionPopup(contact) {
+    //   this.selectedContact = contact;
+    //   this.showActionPopup = true;
+    // },
     closeActionPopup() {
       this.showActionPopup = false;
       this.selectedContact = null;
     },
-    modifyContact() {
+    modifyContact(contact) {
+      this.selectedContact = contact;
       this.contact = { ...this.selectedContact };
       this.showPopup = true;
       this.closeActionPopup();
@@ -208,9 +264,77 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.contactsListContainer {
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  border-radius: 16px;
+  background-color: #e7e7e7;
+  border: 1px solid #cacaca;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  background-color: #075e54;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+<!-- <div class="mb-4">
+          <label for="attributes" class="block text-sm font-medium">Custom Attribute (Optional)</label>
+          <button @click="addAttribute" type="button" class="border border-green-500 text-green-500 px-4 py-2 rounded">
+            + Add Attribute
+          </button>
+        </div> -->
+
+<!-- <PopUpSmall v-if="showActionPopup" @close="closeActionPopup">
+      <div class="bg-white shadow-lg rounded-lg p-4">
+        <p class="text-lg mb-4">What action do you want to take?</p>
+        <div class="flex space-x-4">
+          <button @click="modifyContact" class="bg-yellow-500 text-white py-2 px-4 rounded">Modify</button>
+          <button @click="deleteContact(selectedContact.phone)"
+            class="bg-red-500 text-white py-2 px-4 rounded">Delete</button>
+        </div>
+      </div>
+    </PopUpSmall> -->
+<!-- <button @click="openActionPopup(contact)"
+                  class="bg-[#075e54] text-white py-2 px-4 rounded">Action
+                </button> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <style scoped>
+ .contactsListContainer {
   background-color: #f5f6fa;
   border-radius: 12px;
   width: 100%;
@@ -231,7 +355,6 @@ export default {
   overflow-x: auto;
   display: block;
   max-height: 400px;
-  /* Adjust height as needed */
 
 }
 
@@ -262,9 +385,8 @@ th {
 }
 
 .contactsList-table tbody {
-  background-color: white;
+  background-color: white; 
 }
 
 
-/* Add your styles here */
-</style>
+</style>  -->

@@ -7,9 +7,12 @@ from ..models import Broadcast  # Adjust this import as needed based on your pro
 import requests
 import json
 from dramatiq.middleware import Middleware,SkipMessage
+from fastapi import HTTPException
+
 
 # SQLAlchemy Database Configuration
 SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:Denmarks123$@localhost/wati_clone'
+# SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:Denmarks123$@localhost/wati_clone'
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -47,12 +50,13 @@ redis_broker.add_middleware(CancelationMiddleware())
 dramatiq.set_broker(redis_broker)
 
 
-@dramatiq.actor
-def send_broadcast(template, recipients, API_url, headers):
+@dramatiq.actor(max_retries=0)
+def send_broadcast(template, recipients, API_url, headers,broadcast_id):
     """
     Dramatiq actor to send broadcast messages.
     """
     success_count = 0
+    failed_count=0
     errors = []
 
     for recipient in recipients:
@@ -73,10 +77,28 @@ def send_broadcast(template, recipients, API_url, headers):
         if response.status_code == 200:
             success_count += 1
         else:
+            failed_count += 1
             errors.append({"recipient": recipient, "error": response.json()})
+
+
+    db: Session = SessionLocal()
+    broadcast=db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.id == broadcast_id).first()
+
+    if not broadcast:
+        raise HTTPException(status_code=404,detail="Broadcast not found")
+
+    if broadcast_id:
+        broadcast.success=success_count
+        broadcast.status="Sucessful"
+        broadcast.failed=failed_count
+    db.add(broadcast)
+    db.commit()
+    db.refresh(broadcast)
     
     if errors:
         print(f"Failed to send some messages: {errors}")
         raise Exception(f"Failed to send broadcast: {errors}")
+    
+    print(f"Successfully sent {success_count} messages.{errors.count}")
 
-    print(f"Successfully sent {success_count} messages.")
+ 

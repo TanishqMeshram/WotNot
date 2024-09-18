@@ -5,12 +5,13 @@ from ..database import database
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import Session
 from ..oauth2 import get_current_user
+import logging
 
 router=APIRouter(tags=['Contacts'])
 
 @router.post("/contacts/", response_model=contacts.ContactRead)
 def create_contact(contact: contacts.ContactCreate, db: Session = Depends(database.get_db),get_current_user: user.newuser=Depends(get_current_user)):
-    existing_contact = db.query(Contacts.Contact).filter(
+    existing_contact = db.query(Contacts.Contact).filter(Contacts.Contact.user_id == get_current_user.id,
         (Contacts.Contact.email == contact.email) | (Contacts.Contact.phone == contact.phone)
     ).first()
 
@@ -37,6 +38,7 @@ def read_contacts(skip: int = 0, limit: int = 10, tag: str = None, db: Session =
     if tag:
         query = query.filter(Contacts.Contact.tags.contains([tag]))
     contacts = query.offset(skip).limit(limit).all()
+    logging.info(contacts)
     return contacts
 
 @router.get("/contacts/{phone_no}", response_model=contacts.ContactRead)
@@ -62,7 +64,7 @@ def update_contact(contact_id: int, contact: contacts.ContactCreate, db: Session
         raise HTTPException(status_code=404, detail="Contact not found")
     
     existing_contact = db.query(Contacts.Contact).filter(
-        (Contacts.Contact.id != contact_id) &
+        (Contacts.Contact.id != contact_id) &(Contacts.Contact.user_id == get_current_user.id) &
         ((Contacts.Contact.email == contact.email) | (Contacts.Contact.phone == contact.phone))
     ).first()
 

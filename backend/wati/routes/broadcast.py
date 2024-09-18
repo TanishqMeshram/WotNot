@@ -68,7 +68,7 @@ async def send_template_message(request:broadcast.input,get_current_user: user.n
 
 
 
-
+# route for fetchlist in Broadcast template
 @router.get("/templates")
 def get_templates(get_current_user: user.newuser=Depends(get_current_user)):
 
@@ -83,21 +83,11 @@ def get_templates(get_current_user: user.newuser=Depends(get_current_user)):
         raise HTTPException(status_code=response.status_code, detail=response.text)
 
     data = response.json()
-
-  
-
     # Extract template names
     template_names = [template['name'] for template in data.get('data', [])]
-
-    
-
     return JSONResponse(content=template_names)
 
-
-# route for fetchlist in Template management
-
-
-
+# Route to create add broadcast in the list 
 @router.post("/broadcast")
 def broadcastList(request:broadcast.BroadcastListCreate,db: Session = Depends(database.get_db),get_current_user: user.newuser=Depends(get_current_user)):
     broadcastList=Broadcast.BroadcastList(
@@ -114,23 +104,47 @@ def broadcastList(request:broadcast.BroadcastListCreate,db: Session = Depends(da
     db.add(broadcastList)
     db.commit()
     db.refresh(broadcastList)
-    return("logged")
+    return{
+        "broadcast_id":broadcastList.id
+    } 
 
-   
-
-
+# Route to fetch the broadcastlist
 @router.get('/broadcast')
 def fetchbroadcastList(skip: int = 0, limit: int = 10, tag: str = None, db: Session = Depends(database.get_db),
                       get_current_user: user.newuser=Depends(get_current_user) ):
     broadcastList=db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.user_id==get_current_user.id).order_by(Broadcast.BroadcastList.id.desc()).all()
     return broadcastList
+# Put route for the broadcastlist (rightnow primaryly used for updating the task_id )
+@router.put("/broadcast/{broadcast_id}")
+async def update_broadcast(broadcast_id: int, broadcast_update: broadcast.BroadcastListUpdate, db: Session = Depends(database.get_db),get_current_user: user.newuser=Depends(get_current_user)):
+    # Retrieve the broadcast entry from the database
+    broadcast = db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.id == broadcast_id).first()
 
+    # If the broadcast entry does not exist, raise an HTTP 404 error
+    if not broadcast:
+        raise HTTPException(status_code=404, detail="Broadcast not found")
+
+    # Update the broadcast entry with new data
+    if broadcast_update.task_id:
+        broadcast.task_id = broadcast_update.task_id
+
+    # Commit the changes to the database
+    db.add(broadcast)
+    db.commit()
+    db.refresh(broadcast)
+
+    # Return the updated broadcast entry
+    return {"message": "Broadcast updated successfully", "broadcast_id": broadcast_id, "task_id": broadcast.task_id}
+
+
+# Route to fetch the scheduled broadcastlist
 @router.get("/scheduled-broadcast")
 def fetchScheduledbroadcastList(skip: int = 0, limit: int = 10, tag: str = None, db: Session = Depends(database.get_db),
                       get_current_user: user.newuser=Depends(get_current_user) ):
     ScheduledbroadcastList=db.query(Broadcast.BroadcastList).filter(Broadcast.BroadcastList.status=="Scheduled").order_by(Broadcast.BroadcastList.id.desc()).all()
     return ScheduledbroadcastList
 
+# Route to CSV import contacts in the broadcast form
 @router.post("/import-contacts")
 def import_contacts(file: UploadFile = File(...), db: Session = Depends(database.get_db)):
     contents = file.file.read().decode("utf-8")

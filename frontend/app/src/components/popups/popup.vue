@@ -1,58 +1,15 @@
 <template>
-<div class="popup">
-    <div class="popup-inner">
-        <span class="close" @click="$emit('close')">&times;</span>   
-    <slot/>
-      
-    <!-- <button class="popup-close">Close Popup
-    </button> -->
+    <div class="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center p-5 z-[10000] text-left shadow-lg">
+      <div class="bg-[#f5f6fa] p-5 rounded-md w-[700px] overflow-y-auto relative">
+        <span class="close relative flex right-[-98%] text-xl hover:cursor-pointer" @click="$emit('close')">&times;</span>   
+        <slot/>
+      </div>
     </div>
-</div>
-</template>
-
-
-<script>
-export default{
-    name:'PopUp'
-}
-</script>
-
-
-<style scoped>
-.popup{
-
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0; 
-  background-color:rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: center;
+  </template>
   
+  <script>
+  export default {
+    name: 'PopUp'
+  }
+  </script>
   
-  padding: 20px;
-  z-index: 10000;
-  text-align: left;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-
-}
- 
-.popup-inner{
-    background-color:#f5f6fa;
-    padding: 20px;
-    border-radius: 5px;
-    width: 700px;
-    overflow-y: auto;
- 
-
-}
-.close {
-    
-    padding-left: 680px;
-    
-    font-size: 24px;
-    cursor: pointer;
-    color: black;
-}
-</style>

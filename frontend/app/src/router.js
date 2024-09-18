@@ -10,6 +10,7 @@ import LoginPage from './components/login/login.vue';
 import SignupPage from './components/signup/signup.vue';
 import DashboardView from './views/dashboardview.vue';
 import Profile from './views/profile.vue';
+import PurchaseHistory from './components/PurchaseHistory/PurchaseHistory.vue';
 
 // const routes = [
 //   {path: '/login', component: LoginPage, name: 'login'},
@@ -56,7 +57,7 @@ const routes = [
   // Public routes
   { path: '/login', component: LoginPage },
   { path: '/login/signup', component: SignupPage },
-  
+  { path: '/purchase-history', component: PurchaseHistory },
   // { path: '/', component: PublicView },
 
   // Protected routes within the dashboard

@@ -1,64 +1,79 @@
 <template>
-    <div class="content-section">
-    
-        <h2>Scheduled Broadcasts</h2>
-        <p>Your content for scheduled broadcasts goes here.</p>
-
-        <h3>Broadcast list</h3>
-    <div class="broadcastListContainer">
-
-      <table class="broadcastList-table">
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>Broadcast Name</th>
-            <th>Template</th>
-            <th>Contacts</th>
-            <th>Success</th>
-            <th>Failed</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <tr v-for="broadcast in broadcasts" :key="broadcast.id">
-            <td>{{ broadcast.id }}</td>
-            <td>{{ broadcast.name }}</td>
-            <td>{{ broadcast.template }}</td>
-            <td>{{ broadcast.contacts }}</td>
-            <td>{{ broadcast.success }}</td>
-            <td>{{ broadcast.failed }}</td>
-            <td>{{ broadcast.status }}</td>
-            <td><button class="deleteBroadcast" @click="DeleteScheduledBroadcast(broadcast.id)">Delete</button></td>
-          </tr>
-
-        </tbody>
-      </table>
+  <div class="content-section p-4">
+    <!-- Section Header -->
+    <div class="flex flex-col md:flex-row justify-between mb-4">
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold">Scheduled Broadcasts</h2>
+        <p class="text-sm md:text-base">Your content for scheduled broadcasts goes here.</p>
+      </div>
     </div>
-          
+
+    <!-- Broadcast List Table -->
+    <div class="bg-[#f5f6fa] rounded-md p-4 mb-4 shadow-lg">
+      <div class="overflow-x-auto max-h-[60vh] custom-scrollbar">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-[#dddddd] text-center">
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">ID</th>
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Broadcast Name</th>
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Template</th>
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Contacts</th>
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Success</th>
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Failed</th>
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0">Status</th>
+              <th class="p-2 text-left md:p-4 border-b-2 bg-[#dddddd] sticky top-0 z-10">Action</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <tr v-for="broadcast in broadcasts" :key="broadcast.id">
+              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.id }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.name }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.template }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.contacts }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.success }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.failed }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-left">{{ broadcast.status }}</td>
+              <td class="border-[#ddd] p-2 md:p-4 text-center">
+                <button @click="DeleteScheduledBroadcast(broadcast.id)"
+                  class="hover:bg-white rounded-full p-2 transition">
+                  <lord-icon src="https://cdn.lordicon.com/skkahier.json" trigger="hover"
+                  colors="primary:#ff5757,secondary:#000000"  style="width:32px;height:32px">
+                  </lord-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'BroadCast3',
-    data() {
-      return{
-        broadcasts: [],
+  </div>
+</template>
 
-      }
-     
-    },
-    async mounted() {
-    
-    await this.fetchScheduledBroadcastList();
 
-    // Fetch contacts when the component is mounted
+
+
+<script>
+
+export default {
+  name: 'BroadCast3',
+  data() {
+    return {
+      broadcasts: [],
+
+    }
+
   },
-    methods: {
+  async mounted() {
 
-      async fetchScheduledBroadcastList() {
+    await this.fetchScheduledBroadcastList();
+    
+    const script = document.createElement('script');
+    script.src = "https://cdn.lordicon.com/lordicon.js";
+    document.body.appendChild(script);
+  },
+  methods: {
+
+    async fetchScheduledBroadcastList() {
       const token = localStorage.getItem('token');
       try {
         const response = await fetch('http://localhost:8000/scheduled-broadcast/', {
@@ -76,23 +91,22 @@
         const ScheduledbroadcastList = await response.json();
         this.broadcasts = ScheduledbroadcastList.map(broadcast => ({
           id: broadcast.id,
-          name: broadcast.name,
+          name: broadcast.name.split(' - ')[0],  // Extract the part before " - "
           template: broadcast.template,
-          contacts: broadcast.contacts,
+          contacts: broadcast.contacts.join(' , '), // Join the array without quotes
           success: broadcast.success,
           failed: broadcast.failed,
           status: broadcast.status
-
         }));
       } catch (error) {
         console.error('Error fetching scheduled-broadcastlist:', error);
       }
     },
 
-    async DeleteScheduledBroadcast(broadcast_id){
+    async DeleteScheduledBroadcast(broadcast_id) {
       const token = localStorage.getItem('token');
       try {
-        
+
         const response = await fetch(`http://localhost:8000/broadcasts-delete/${broadcast_id}`, {
           method: 'DELETE',
           headers: {
@@ -104,7 +118,7 @@
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        
+
         this.fetchScheduledBroadcastList();
 
 
@@ -112,13 +126,67 @@
         console.error('Error fetching contacts:', error);
       }
     },
-      
-    }
+
   }
-  </script>
-  
-  <style>
-.NeWBroadcastButtonContainer {
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style scoped>
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  border-radius: 16px;
+  background-color: #e7e7e7;
+  border: 1px solid #cacaca;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  background-color: #075e54;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <style scoped>
+  .NeWBroadcastButtonContainer {
   background-color: #f5f6fa;
   border-radius: 12px;
   width: 100%;
@@ -253,4 +321,4 @@ th {
 }
 </style>
 
-  
+   -->

@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel 
+from datetime import datetime
 
 # Pydantic model
 class ContactCreate(BaseModel):
@@ -9,4 +10,5 @@ class ContactCreate(BaseModel):
 
 class ContactRead(ContactCreate):
     id: int
+    created_at: datetime
     

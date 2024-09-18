@@ -1,234 +1,64 @@
-<!-- FOR A POPUP VIEW -->
-
-<!-- <template>
-  <div class="overlay" v-if="visible" @click.self="close">
-    <div class="popup">
-      <h2>Profile Details</h2>
-      <form @submit.prevent="saveProfile">
-        <label for="email">Email:</label>
-        <input type="email" id="email" v-model="localUser.email" />
-
-        <label for="name">Name:</label>
-        <input type="text" id="name" v-model="localUser.name" />
-
-        <label for="whatsapp_business_id">WhatsApp Business ID:</label>
-        <input type="text" id="whatsapp_business_id" v-model="localUser.whatsapp_business_id" />
-
-        <label for="phone_id">Phone ID:</label>
-        <input type="text" id="phone_id" v-model="localUser.phone_id" />
-
-        <label for="access_token">Access Token:</label>
-        <input type="text" id="access_token" v-model="localUser.access_token" />
-
-        <button type="submit">Save</button>
-        <button type="button" @click="close">Cancel</button>
-      </form>
-    </div>
-  </div>
-</template>
-
-<script>
-export default {
-  name: 'ProfilePopup',
-  props: {
-    visible: {
-      type: Boolean,
-      required: true
-    },
-    user: {
-      type: Object,
-      required: true
-    }
-  },
-  data() {
-    return {
-      localUser: { ...this.user } 
-    };
-  },
-  watch: {
-    visible: {
-      immediate: true,
-      handler(newVal) {
-        if (newVal) {
-          this.fetchUserDetails();
-        }
-      }
-    },
-    user: {
-      immediate: true,
-      handler(newVal) {
-        this.localUser = { ...newVal }; // Sync localUser with the user prop
-      }
-    }
-  },
-  methods: {
-    close() {
-      this.$emit('close');
-    },
-    async fetchUserDetails() {
-      try {
-        const response = await fetch('http://localhost:8000/user', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch user details');
-        }
-
-        const data = await response.json();
-        this.localUser.email = data.email;
-        this.localUser.name = data.name;
-        this.localUser.whatsapp_business_id = data['Whatsapp_Business_Id'];
-        this.localUser.phone_id = data['Phone_id'];
-        this.localUser.access_token = data['Access_Token'];
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-      }
-    },
-    async saveProfile() {
-      try {
-        const response = await fetch('http://localhost:8000/user', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify({
-            email: this.localUser.email,
-            name: this.localUser.name,
-            Whatsapp_Business_Id: this.localUser.whatsapp_business_id,
-            Phone_id: this.localUser.phone_id,
-            Access_Token: this.localUser.access_token
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to save user details');
-        }
-
-        console.log('Profile saved', this.localUser);
-        this.$emit('update:user', this.localUser); 
-        this.close();
-      } catch (error) {
-        console.error('Error saving user details:', error);
-      }
-    }
-  }
-};
-</script>
-  
-<style scoped>
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  
-  .popup {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  label {
-    margin-top: 10px;
-  }
-  
-  input {
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  button {
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  button[type="submit"] {
-    background-color: #075e54;
-    color: white;
-  }
-  
-  button[type="button"] {
-    background-color: #ddd;
-  }
-</style> -->
-
-
-
-
-
-<!-- FOR A SIDEBAR VIEW -->
-
 <template>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-  <div class="profile-sidebar-overlay" v-if="visible" @click.self="close">
-    <div class="profile-sidebar">
-      <div class="header">
-        <h2>Profile Details</h2>
-        <span class="cancel-icon" @click="close">
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50" v-if="visible" @click.self="close">
+    <div class="w-80 h-full bg-white shadow-lg transform transition-transform duration-300" :class="visible ? 'translate-x-0' : 'translate-x-full'">
+      <div class="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Profile Details</h2>
+        <button @click="close" class="text-gray-600 hover:text-gray-900">
           <i class="fas fa-times"></i>
-        </span>
+        </button>
       </div>
-      <form @submit.prevent="saveProfile">
+      <form @submit.prevent="saveProfile" class="p-4 space-y-4">
         <div>
-          <label for="email">Email:</label>
-          <div class="input-group">
-            <input type="email" id="email" v-model="localUser.email" :readonly="isEmailReadonly" />
-            <span class="edit-icon" @click="toggleEmailReadonly">
-              🖉
-            </span>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+          <div class="relative mt-1">
+            <input type="email" id="email" v-model="localUser.email" :readonly="isEmailReadonly"
+              class="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
           </div>
         </div>
         <div>
-          <label for="name">Name:</label>
-          <div class="input-group">
-            <input type="text" id="name" v-model="localUser.name" :readonly="isNameReadonly" />
-            <span class="edit-icon" @click="toggleNameReadonly">
-              🖉
-            </span>
+          <label for="name" class="block text-sm font-medium text-gray-700">Username:</label>
+          <div class="relative mt-1">
+            <input type="text" id="name" v-model="localUser.name" :readonly="isNameReadonly"
+              class="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            
           </div>
         </div>
 
-        <label for="whatsapp_business_id">WhatsApp Business ID:</label>
-        <input type="text" id="whatsapp_business_id" v-model="localUser.whatsapp_business_id" readonly />
+        <div>
+          <label for="whatsapp_business_id" class="block text-sm font-medium text-gray-700">WhatsApp Business ID:</label>
+          <input type="text" id="whatsapp_business_id" v-model="localUser.whatsapp_business_id" readonly
+            class="block w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+          />
+        </div>
 
-        <label for="phone_id">Phone ID:</label>
-        <input type="text" id="phone_id" v-model="localUser.phone_id" readonly />
+        <div>
+          <label for="phone_id" class="block text-sm font-medium text-gray-700">Phone ID:</label>
+          <input type="text" id="phone_id" v-model="localUser.phone_id" readonly
+            class="block w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+          />
+        </div>
 
-        <label for="access_token">Access Token:</label>
-        <input type="text" id="access_token" v-model="localUser.access_token" readonly />
+        <div>
+          <label for="access_token" class="block text-sm font-medium text-gray-700">Access Token:</label>
+          <input type="text" id="access_token" v-model="localUser.access_token" readonly
+            class="block w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+          />
+        </div>
 
-        <button type="submit">Save</button>
+        <div class="mt-4">
+          <button type="submit" class="w-full px-4 py-2 text-white bg-teal-600 hover:bg-teal-700 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+            Save
+          </button>
+        </div>
       </form>
     </div>
   </div>
 </template>
 
 <script>
+
 export default {
   name: 'ProfileSidebar',
   props: {

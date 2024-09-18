@@ -1,75 +1,65 @@
 <template>
-    <div style="height: 100vh; overflow-y: auto;" ref="scrollContainer" class="signup-wrapper">
-      <div class="signup-wrapper">
-      <div class="signup-container">
-        <h2>Get started with an account on Wotnot</h2>
-        <br>
-  
-        <div class="name-fields">
-    <div class="input-group full-width">
-      <label for="username">Business Name</label>
-      <input type="username" id="username" placeholder="Business Name" required />
-    </div>
-  </div>
-  <div class="input-group full-width">
-    <label for="email">Business Email Address</label>
-    <input type="email" id="email" placeholder="Business Email Address" required />
-  </div>
-  <div class="input-group full-width">
-    <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Password" required />
-  </div>
-  <div class="input-group full-width">
-    <label for="WABAID">Whatsapp Business account ID</label>
-    <input type="WABAID" id="WABAID" placeholder="Whatsapp Business account ID" required />
-  </div>
-  <div class="input-group full-width">
-    <label for="PAccessToken">Permanent Access Token</label>
-    <input type="PAccessToken" id="PAccessToken" placeholder="Permanent Access Token" required />
-  </div>
-  <div class="input-group full-width">
-    <label for="Phone_id">Phone number ID</label>
-    <input type="Phone_id" id="Phone_id" placeholder="Phone number ID" required />
-  </div>
-  
-  
-        <!--<div class="input-group full-width">
-          <label for="phone">Your mobile number</label>
-          <div class="phone-input">
-            <select id="phone-code">
-              <option value="IN" data-code="+91">🇮🇳 +91</option>
-              <option value="US" data-code="+1">🇺🇸 +1</option>
-              <option value="GB" data-code="+44">🇬🇧 +44</option>
-              <option value="CA" data-code="+1">🇨🇦 +1</option>
-              <option value="AU" data-code="+61">🇦🇺 +61</option>
-              <option value="DE" data-code="+49">🇩🇪 +49</option>
-              <option value="FR" data-code="+33">🇫🇷 +33</option>
-              <option value="JP" data-code="+81">🇯🇵 +81</option>
-              <option value="CN" data-code="+86">🇨🇳 +86</option>
-              <option value="BR" data-code="+55">🇧🇷 +55</option>
-             
-            </select>
-            <input type="tel" id="phone" placeholder="Your mobile number" required />
-          </div>
-        </div>-->
-  
-        <div class="input-group">
-          <p>
-            By signing up you agree to the
-            <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
-          </p>
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl sm:text-3xl font-semibold text-center text-gray-800 mb-4">Get started with Wotnot</h2>
+
+      <hr class="my-3 border-gray-300" />
+
+      <div class="space-y-4">
+        <div class="w-full">
+          <label for="username" class="block text-sm font-medium text-gray-700">Business Name</label>
+          <input type="text" id="username" placeholder="Your Business Name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
         </div>
-  
-        <button class="submit-button" @click.prevent="handleSubmit">Get Account</button>
-  
-        <p>Already have an account? <a href="http://localhost:8080/#/login">login</a></p>
+
+        <div class="w-full">
+          <label for="email" class="block text-sm font-medium text-gray-700">Business Email Address</label>
+          <input type="email" id="email" placeholder="Your Business Email Address" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
+        </div>
+
+        <div class="w-full">
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" id="password" placeholder="Set Password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
+        </div>
+
+        <div class="w-full">
+          <label for="WABAID" class="block text-sm font-medium text-gray-700">WhatsApp Business Account ID</label>
+          <input type="text" id="WABAID" placeholder="Your WhatsApp Business Account ID" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
+        </div>
+
+        <div class="w-full">
+          <label for="PAccessToken" class="block text-sm font-medium text-gray-700">Permanent Access Token</label>
+          <input type="text" id="PAccessToken" placeholder="Your Permanent Access Token" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
+        </div>
+
+        <div class="w-full">
+          <label for="Phone_id" class="block text-sm font-medium text-gray-700">Phone Number ID</label>
+          <input type="text" id="Phone_id" placeholder="Your Phone Number ID" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required />
+        </div>
       </div>
+
+      <div class="mt-4 text-sm text-center">
+        <p class="mb-2 text-sm">
+          By signing up you agree to the
+          <a href="#" class="text-[#075e54] font-semibold">Terms</a> and
+          <a href="#" class="text-[#075e54] font-semibold">Privacy Policy</a>
+        </p>
+      </div>
+
+      <button class="w-full bg-[#075e54] text-white py-2 rounded-md hover:bg-[#2d988c] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" @click.prevent="handleSubmit">
+        Get Account
+      </button>
+
+      <p class="mt-4 text-center text-sm">
+        Already have an account?
+        <a href="http://localhost:8080/#/login" class="text-[#075e54] font-semibold mb-4">Login</a>
+      </p>
     </div>
-    </div>
-  </template>
+  </div>
+</template>
+
+
   
-  
-  <script>
+<script>
   export default {
     name: 'SignUpForm',
     methods: {
@@ -122,7 +112,7 @@
   
   
   
-  <style scoped>
+  <!-- <style scoped>
   body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -190,12 +180,12 @@
   }
   
   .auth-button.google {
-    background-color: #075e53;
+    background-color: #0b0c0c;
     margin-right: 2%; /* Add margin-right to create space */
   }
   
   .auth-button.facebook {
-    background-color: #075e53;
+    background-color: #0c0e0e;
   }
   
   .name-fields {
@@ -235,7 +225,7 @@
     display: block;
     margin-bottom: -8px; /* Reduced margin below labels */
     font-size: 14px;
-    font-weight: bold;
+    font-weight:normal;
     text-align: left;
   }
   
@@ -285,7 +275,7 @@
   
   a:hover {
     text-decoration: underline;
-  }
+  } 
   
   @media (max-width: 600px) {
     .signup-container {
@@ -330,4 +320,4 @@
       width: 100%;
     }
   }
-  </style>
+  </style> -->
