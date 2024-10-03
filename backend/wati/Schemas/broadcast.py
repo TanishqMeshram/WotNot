@@ -1,21 +1,49 @@
 from pydantic import BaseModel,HttpUrl,Field
 from typing import List, Optional
 from datetime import datetime
+from fastapi import  File, UploadFile
+
+class Contact(BaseModel):
+    name: str = Field(..., example="John Doe")
+    phone: str = Field(..., example="+1234567890")
 
 class input(BaseModel):
     name:str
-    recipients: list[str]
+    recipients: List[Contact]
     template:str
     status:str
     scheduled_time:str
     type:str
+    image_id:Optional[str] = None 
+    body_parameters: str = None
+
+
+
 
 class input_broadcast(BaseModel):
-    recipients: list[str]
+    recipients: List[Contact]
     template:str
     status:str
     name:str
     type:str
+    image_id:Optional[str] = None 
+    body_parameters: str = None
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "New Year Campaign",
+                "template": "new_year_template",
+                "type": "Broadcast",
+                "recipients": [
+                    {"name": "John Doe", "phone": "+1234567890"},
+                    {"name": "Jane Smith", "phone": "+0987654321"}
+                ],
+                "image_id": "123456789",
+                "body_parameters": ["param1", "param2"]
+            }
+        }
+    
 
 class BroadcastListCreate(BaseModel): 
     name:str
@@ -78,3 +106,6 @@ class TemplateResponse(BaseModel):
     id: str
     status: str
     category: str
+
+class uploadMedia(BaseModel):
+    File:UploadFile

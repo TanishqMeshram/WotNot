@@ -15,20 +15,32 @@
       </div>
 
       <div class="nav-right">
+
+        <!-- Wallet Button with Icon -->
+        <div class="wallet-section">
+          <button @click="toggleWalletModal" class="wallet-btn">
+            <i class="bi bi-wallet2"></i>
+          </button>
+        </div>
+
         <div class="flex" v-if="user">
 
           <p class="text-green-700"> {{ user.email }}</p>
         </div>
         <div v-else>
-          <p>Loading user details...</p>
+          <p class="text-gray-600">Session Expired</p>
         </div>
 
 
-        <div class="profile-dropdown" @click="toggleDropdown">
-          <img src="../assets/—Pngtree—avatar icon profile icon member_5247852.png" alt="Profile"
-            class="profile-icon" />
+        <div class="profile-dropdown" @click="toggleDropdown" ref="profileDropdown">
+          <!-- <img src="../assets/—Pngtree—avatar icon profile icon member_5247852.png" alt="Profile"
+            class="profile-icon" /> -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+              <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+            </svg>
 
-          <div v-if="dropdownOpen" class="dropdown-menu">
+          <div v-if="dropdownOpen" class="dropdown-menu" ref="dropdownMenu">
             <ul>
               <li @click="goToProfile"><i class="bi bi-person-circle"></i> View Profile</li>
               <li @click="goToPurchaseHistory"><i class="bi bi-currency-rupee"></i> Purchase History </li>
@@ -38,19 +50,14 @@
           </div>
         </div>
 
-        <!-- Wallet Button with Icon -->
-        <div class="wallet-section">
-          <button @click="toggleWalletModal" class="wallet-btn">
-            <i class="bi bi-wallet2"></i>
-          </button>
-        </div>
+        
       </div>
 
 
     </div>
 
     <!-- Wallet Modal Pop-up -->
-    <div v-if="walletModalOpen" class="modal-overlay" @click="toggleWalletModal">
+    <div v-if="walletModalOpen" class="modal-overlay" >
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h2>Wallet</h2>
@@ -118,7 +125,7 @@
       </div>
 
       <!-- Main Content -->
-      <div class="flex-1 mt-16 md:ml-64 p-8 bg-white overflow-y-auto h-[calc(100vh-65px)]">
+      <div class="flex-1 mt-16 md:ml-64 p-8 bg-white overflow-y-auto h-[calc(100vh-65px)] ">
         <router-view></router-view>
       </div>
 
@@ -266,8 +273,14 @@ export default {
       this.dropdownOpen = !this.dropdownOpen;
     },
     async toggleWalletModal() {
-      await this.fetchWalletDetails(this.localUser.whatsapp_business_id)
       this.walletModalOpen = !this.walletModalOpen;
+      const walletOpen= this.walletModalOpen
+
+      if(walletOpen){
+        await this.fetchWalletDetails(this.localUser.whatsapp_business_id)
+      }
+      
+
     },
     topUpBalance() {
       alert('Coming Soon...');
@@ -287,10 +300,15 @@ export default {
     },
 
     handleOutsideClick(event) {
-      if (!this.$el.contains(event.target)) {
-        this.dropdownOpen = false;
-      }
-    },
+    // Check if the click is outside the dropdown element
+    const dropdownMenu = this.$refs.dropdownMenu; // Use $refs to access the dropdown menu element
+    const profileDropdown = this.$refs.profileDropdown; // Use $refs to access the profile dropdown element
+
+    if (dropdownMenu && !dropdownMenu.contains(event.target) && profileDropdown && !profileDropdown.contains(event.target)) {
+      this.dropdownOpen = false; // Close dropdown
+    }
+  },
+ 
   }
 }
 
@@ -356,10 +374,28 @@ svg {
   color: #075e54;
 }
 
+.nav-right svg {
+  
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0 9px 0 9px;
+  color: #525252;
+  transition: all 0.3s ease;
+}
+.nav-right svg:hover{
+  border-radius: 100%;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
 .nav-item {
   padding: 15px;
   cursor: pointer;
-  color: #333;
+  color:#525252;
   text-align: center;
   margin: 8px 0;
   border-right: 1px solid #e9ecef;
@@ -395,6 +431,7 @@ svg {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   overflow: hidden;
+  color: #525252;
 }
 
 .dropdown-menu ul {
@@ -475,7 +512,9 @@ button {
 button:hover {
   background-color: #1ebd5b;
 }
-
+.wallet-section{
+  margin-right:9px;
+}
 .wallet-btn {
   background: linear-gradient(45deg, #34eb83, #2ebf91);
   color: white;
@@ -491,7 +530,8 @@ button:hover {
 }
 
 .wallet-btn i {
-  margin-right: 10px;
+  margin-left: 3px;
+  margin-right: 3px;
 }
 
 .wallet-btn:hover {

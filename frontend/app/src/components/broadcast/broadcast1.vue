@@ -39,7 +39,7 @@
               <!-- <td class=" border-[#ddd] p-2 md:p-4 text-center">{{ template.status }}</td> -->
               <td class="p-2 md:p-4 text-center">
                 <div :class="{
-                  'bg-green-100 text-green-500 ': template.status === 'APPROVED',
+                  'bg-[#e9f6ee] text-green-500 ': template.status === 'APPROVED',
                   'bg-blue-100 text-blue-500 ': template.status === 'PENDING',
                   'bg-red-100 text-red-500 ': template.status === 'REJECTED',
                   'border-[#ddd]': true
@@ -306,7 +306,7 @@ export default {
     // 
     validateTemplateName() {
       // Updated regex to allow lowercase letters and underscores
-      const regex = /^[a-z_]+$/;
+      const regex = /^[a-z_0-9]+$/;
 
       if (this.template.name.trim() === '') {
         this.nameError = 'Template name is required';

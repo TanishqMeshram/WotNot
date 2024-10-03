@@ -1,11 +1,18 @@
 from fastapi import APIRouter,Depends,HTTPException
-from ..models import Contacts
+from ..models import Contacts,User
 from ..Schemas import contacts,user
 from ..database import database
+from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import Session
 from ..oauth2 import get_current_user
 import logging
+from ..Schemas.contacts import ContactRead
+from ..models.Contacts import Contact  # Import the Contact model
+
+
+
+
 
 router=APIRouter(tags=['Contacts'])
 
@@ -34,12 +41,42 @@ def create_contact(contact: contacts.ContactCreate, db: Session = Depends(databa
 
 @router.get("/contacts/", response_model=list[contacts.ContactRead])
 def read_contacts(skip: int = 0, limit: int = 10, tag: str = None, db: Session = Depends(database.get_db),get_current_user: user.newuser=Depends(get_current_user)):
-    query = db.query(Contacts.Contact).filter(Contacts.Contact.user_id==get_current_user.id)
+   query = db.query(Contacts.Contact).filter(Contacts.Contact.user_id==get_current_user.id)
+   if tag:
+       query = query.filter(Contacts.Contact.tags.contains([tag]))
+   contacts = query.offset(skip).limit(limit).all()
+   logging.info(contacts)
+   return contacts
+
+@router.get("/contacts-filter/", response_model=List[ContactRead])
+def read_contacts(
+    skip: int = 0,
+    limit: int = 10,
+    tag: Optional[str] = None,
+    sort_by: str = 'updated_at',
+    order: str = 'desc',
+    db: Session = Depends(database.get_db),
+    get_current_user: user.newuser = Depends(get_current_user)
+):
+    query = db.query(Contact).filter(Contact.user_id == get_current_user.id)
+    
     if tag:
-        query = query.filter(Contacts.Contact.tags.contains([tag]))
+        query = query.filter(Contact.tags.contains([tag]))
+
+    if sort_by == 'updated_at':
+        if order == 'desc':
+            query = query.order_by(Contact.updated_at.desc())
+        elif order == 'asc':
+            query = query.order_by(Contact.updated_at.asc())
+    elif sort_by == 'created_at':
+        if order == 'desc':
+            query = query.order_by(Contact.created_at.desc())
+        elif order == 'asc':
+            query = query.order_by(Contact.created_at.asc())
+
     contacts = query.offset(skip).limit(limit).all()
-    logging.info(contacts)
     return contacts
+
 
 @router.get("/contacts/{phone_no}", response_model=contacts.ContactRead)
 def read_contact(phone_no: str, db: Session = Depends(database.get_db),get_current_user: user.newuser=Depends(get_current_user)):
@@ -81,3 +118,22 @@ def update_contact(contact_id: int, contact: contacts.ContactCreate, db: Session
 
 
 
+@router.get("/contacts-filter/filter", response_model=List[contacts.ContactRead])
+def filter_contacts_by_tags(
+    tag_key: str,
+    tag_value: str,
+    db: Session = Depends(database.get_db),
+    get_current_user: user.newuser=Depends(get_current_user)
+):
+    search_tag = f"{tag_key}:{tag_value}"
+    
+    # Query to filter contacts that have the matching tag in the list
+    filtered_contacts = db.query(Contacts.Contact).filter(
+        Contacts.Contact.user_id == get_current_user.id,
+        Contacts.Contact.tags.op('@>')([f"{search_tag}"])
+    ).all()
+
+    if not filtered_contacts:
+        raise HTTPException(status_code=404, detail="No contacts found with the specified tag")
+    
+    return filtered_contacts

@@ -1,7 +1,8 @@
 from ..database import database
-from sqlalchemy import Integer,Column,String,ARRAY,Boolean
+from sqlalchemy import Integer,Column,String,ARRAY,Boolean,JSON
 from . import User
 from sqlalchemy import Column, String, TIMESTAMP, ForeignKey, func
+
 
 # broadcast List
 class BroadcastList(database.Base):
@@ -12,6 +13,7 @@ class BroadcastList(database.Base):
     type = Column(String, nullable=True)
     template = Column(String)
     contacts = Column(ARRAY(String))
+    # contacts = Column(JSON, nullable=False)
     success = Column(Integer)
     failed = Column(Integer)
     status = Column(String)
@@ -30,6 +32,7 @@ class BroadcastAnalysis(database.Base):
     status=Column(String)
     message_id = Column(String,unique=True)
     phone_no=Column(String)
+    contact_name=Column(String)
     read=Column(Boolean,nullable=True)
     delivered=Column(Boolean,nullable=True)
     sent=Column(Boolean,nullable=True)

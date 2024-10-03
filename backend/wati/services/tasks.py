@@ -11,7 +11,7 @@ from fastapi import HTTPException
 
 
 # SQLAlchemy Database Configuration
-SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:Denmarks123$@localhost/wati_clone'
+SQLALCHEMY_DATABASE_URL = 'postgresql://Crystal:crystal@localhost/WATI'
 # SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:Denmarks123$@localhost/wati_clone'
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -51,7 +51,7 @@ dramatiq.set_broker(redis_broker)
 
 
 @dramatiq.actor(max_retries=0)
-def send_broadcast(template_name, recipients, broadcastId,API_url, headers,user_id):
+def send_broadcast(template_name, recipients, broadcastId,API_url, headers,user_id,image_id,body_parameters):
     
     
     """
@@ -62,18 +62,63 @@ def send_broadcast(template_name, recipients, broadcastId,API_url, headers,user_
     failed_count=0
     errors = []
 
-    for recipient in recipients:
+    # for recipient in recipients:
+    #     data = {
+    #         "messaging_product": "whatsapp",
+    #         "to": recipient,
+    #         "type": "template",
+    #         "template": {
+    #             "name": template_name,
+    #             "language": {
+    #                 "code": "en_US"
+    #             }
+    #         }
+    #     }
+
+    for contact in recipients:
+        recipient_name = contact["name"]  # Adjusted to access the dictionary
+        recipient_phone = contact["phone"]
+
         data = {
             "messaging_product": "whatsapp",
-            "to": recipient,
+            "to": recipient_phone,
             "type": "template",
             "template": {
                 "name": template_name,
-                "language": {
-                    "code": "en_US"
-                }
+                "language": {"code": "en_US"},
+                # You can insert recipient_name into your message template if needed
             }
         }
+
+        if image_id:
+            data["template"]["components"] = [
+                {
+                    "type": "header",
+                    "parameters": [
+                        {
+                            "type": "image",
+                            "image": {"id": image_id}
+                        }
+                    ]
+                }
+            ]
+
+        
+        
+        if body_parameters:
+            if body_parameters == "Name":
+                body_params = [{"type": "text","text": f"{recipient_name}"}]
+                
+            else:
+                data["template"]["components"] = []
+
+            if "components" not in data["template"]:
+                data["template"]["components"] = []
+            data["template"]["components"].append({
+                "type": "body",
+                "parameters": body_params
+            })
+
 
         response = requests.post(API_url, headers=headers, data=json.dumps(data))
         
@@ -91,7 +136,8 @@ def send_broadcast(template_name, recipients, broadcastId,API_url, headers,user_
             broadcast_id=broadcastId,
             message_id=wamid,
             status="sent",
-            phone_no=phone_num,  
+            phone_no=phone_num,
+            contact_name=recipient_name
              )
             
             db.add(MessageIdLog)
@@ -101,13 +147,14 @@ def send_broadcast(template_name, recipients, broadcastId,API_url, headers,user_
 
         else:
             failed_count += 1
-            errors.append({"recipient": recipient, "error": response.json()})
+            errors.append({"recipient": recipient_phone, "error": response.json()})
             db: Session = SessionLocal()
             MessageIdLog=Broadcast.BroadcastAnalysis(
             user_id=user_id,
             broadcast_id=broadcastId,
             status="failed",
-            phone_no=recipient,  
+            phone_no=recipient_phone,
+            contact_name=recipient_name  
              )
             db.add(MessageIdLog)
             db.commit()
